@@ -38,3 +38,4 @@
 @media(max-width:600px){.loader-center{width:calc(100% - 48px)}}
 @media(max-width:800px){.scene-bottom-line{display:none}}
 .icon{display:inline-block;flex-shrink:0;width:1em;height:1em;overflow:hidden}
+@media(min-width:601px) and (max-width:800px){.hero-statement{width:52%}.hero-statement .micro,.hero-statement .statement-rule{display:none}}
