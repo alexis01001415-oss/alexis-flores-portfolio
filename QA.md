@@ -1,48 +1,54 @@
-# Verificación — 26 de septiembre de 2026
+# Verificación — segunda versión
 
-## Compilación y publicación
+26 de septiembre de 2026. Pruebas sobre la compilación Vite de esta iteración, servida localmente en Chromium.
 
-- `npm run build`: correcto (TypeScript y Vite).
-- `npm install` / auditoría de dependencias: 0 vulnerabilidades reportadas.
-- Despliegue mediante GitHub Actions y GitHub Pages con HTTPS.
-- URL pública comprobada: respuesta HTTP 200, título, canonical y datos estructurados presentes.
+## Comprobado
+
+- `npm run build`: TypeScript, Vite y metadatos correctos.
+- `npm audit`: cero vulnerabilidades, incluyendo dependencias de desarrollo.
+- Modelo Blender: texturas cargadas, apertura de bisagra, separación de objetos, laptop izquierda/derecha y cambios de pantalla.
+- Cámara y materiales revisados visualmente en escritorio, móvil y tablet. La iluminación PMREM se precalcula y se descarga como un recurso de 265 KB.
+- Menú móvil, tema claro/oscuro, navegación por anclas, pausa y reactivación del recorrido.
+- Diálogos de proyectos por teclado, Escape y devolución del foco. Acceso a una ficha fuera del encuadre del carrusel.
+- Canvas reutilizado en el footer; regreso al hero mediante scroll.
+- Vistas revisadas: 320 × 740, 390 × 844, 768 × 1024 y 1280 × 720. Sin desbordamiento horizontal del documento en las medidas móviles inspeccionadas.
+- Prueba de fallo real del GLB: un servidor de QA devuelve HTTP 503 para el modelo. El preloader se retira, el canvas se libera y se conserva una página continua con proyectos y diálogos utilizables.
+- Revisión de código de `prefers-reduced-motion`, entrada anticipada y contenido sin JavaScript. No se simuló una tecnología de asistencia real.
 
 ## Lighthouse local
 
-Prueba sobre la compilación de producción con Lighthouse 13.5.0 y sus configuraciones estándar de móvil y escritorio.
-
 | Categoría | Móvil | Escritorio |
 | --- | ---: | ---: |
-| Rendimiento | 98 | 100 |
+| Rendimiento | 72 | 94 |
 | Accesibilidad | 100 | 100 |
 | Buenas prácticas | 100 | 100 |
 | SEO | 100 | 100 |
+| FCP | 1.8 s | 0.4 s |
+| LCP | 2.9 s | 0.6 s |
+| Bloqueo total | 930 ms | 180 ms |
+| CLS | 0 | 0.028 |
 
-Móvil: FCP 1.5 s; LCP 2.1 s; bloqueo total 30 ms; CLS 0.049.
+La medición móvil final incluye la corrección de espacio reservado para iconos. La de escritorio precede ese ajuste de presentación y la ocultación del indicador de escena en pantallas pequeñas. Son pruebas locales con perfiles de Lighthouse, no datos reales de visitantes ni una medición de FPS durante todo el recorrido.
 
-Las cifras corresponden a la carga inicial local, con render de Blender como imagen. Three.js se activa por interacción o al acercarse al footer. No miden la tasa de fotogramas de una sesión 3D, no son datos reales de visitantes y pueden variar por dispositivo y red. La comprobación automática de accesibilidad no equivale a una certificación WCAG. SEO 100 no garantiza posiciones en Google ni aparición en respuestas de asistentes.
+El arranque de WebGL sigue siendo el principal coste móvil. Precalcular la iluminación redujo el bloqueo inicial desde aproximadamente 4,050 ms en la primera prueba v2. Se mantiene la carga automática del 3D solicitada; no se oculta tras una interacción para mejorar artificialmente la puntuación.
 
-Informes completos disponibles localmente en `artifacts/lighthouse-mobile.html` y `artifacts/lighthouse-desktop.html`, excluidos del repositorio.
+Los informes detallados están en `artifacts/lighthouse-mobile.html` y `artifacts/lighthouse-desktop.html`, excluidos del repositorio. La revisión automática no equivale a una certificación WCAG ni garantiza posicionamiento en buscadores.
 
-Para repetir, iniciar `npm run preview` y ejecutar:
+## Repetir las mediciones
 
 ```sh
-npm run audit:accessibility
+npm ci
+npm run build
+npm run preview
+```
+
+En otra terminal, ejecutar por separado:
+
+```sh
+node scripts/audit.mjs http://127.0.0.1:4173/
 node scripts/audit.mjs http://127.0.0.1:4173/ --desktop
 ```
 
-## Revisión manual en Chromium
+## Contenido pendiente de Alexis
 
-- Vistas de 320, 390, 768 y 1440 px; sin scroll horizontal del documento tras las correcciones.
-- Tema claro/oscuro y menú móvil.
-- Apertura de fichas, cierre con Escape y devolución de foco al botón original.
-- Pestañas del proceso mediante clic y flechas del teclado.
-- Escena WebGL original y activación del gato.
-- Footer, contacto y enlaces al perfil público de GitHub.
-- Sin errores de consola en las vistas probadas.
-
-También se revisaron código de movimiento reducido, pausa, carga alternativa, liberación de recursos ante fallos, contenido HTML sin JavaScript y contraste de los colores principales en ambos temas.
-
-## Datos pendientes del propietario
-
-Paleta definitiva, fotografía de Alexis, especialidad confirmada, trayectoria, empresas, años, formación, proyectos reales y correo de contacto. La interfaz identifica los conceptos y fotografía temporales. El contacto ofrece GitHub hasta incorporar un correo real. No hay logros o clientes ficticios presentados como reales.
+Fotografía, especialidad y texto personal confirmados, trayectoria, empresas, años, formación, proyectos reales y correo. La interfaz identifica los conceptos y la fotografía provisionales. El contacto ofrece GitHub hasta incorporar un correo real. La paleta proporcionada ya está aplicada.

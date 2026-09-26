@@ -1,0 +1,12 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>Preparar iluminación del estudio</title><style>body{font:18px sans-serif;padding:40px;background:#131211;color:#f2eae3}button,a{display:block;padding:20px;margin:20px 0}</style><h1>Iluminación del estudio</h1><button id="bake">Generar reflejos precalculados</button><p id="status">Listo para generar.</p><script type="module">
+import * as THREE from 'three';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+document.querySelector('#bake').onclick=async()=>{
+const renderer=new THREE.WebGLRenderer();const pmrem=new THREE.PMREMGenerator(renderer);const room=new RoomEnvironment();const result=pmrem.fromScene(room,.04,.1,100,{size:128});
+const pixels=new Uint16Array(result.width*result.height*4);renderer.readRenderTargetPixels(result,0,0,result.width,result.height,pixels);
+const canvas=document.createElement('canvas');canvas.width=result.width;canvas.height=result.height;const context=canvas.getContext('2d');const image=context.createImageData(canvas.width,canvas.height);let peak=0;
+for(let i=0;i<pixels.length;i+=4){for(let c=0;c<3;c++){const v=THREE.DataUtils.fromHalfFloat(pixels[i+c]);peak=Math.max(peak,v);image.data[i+c]=Math.min(255,Math.round(v/16*255));}image.data[i+3]=255;}context.putImageData(image,0,0);
+const compressed=await new Response(new Blob([pixels]).stream().pipeThrough(new CompressionStream('gzip'))).blob();
+const link=document.createElement('a');link.download='studio-environment.pmrem';link.href=URL.createObjectURL(compressed);link.textContent='Descargar iluminación';document.body.append(link);document.body.append(canvas);document.querySelector('#status').textContent=`Atlas ${result.width} × ${result.height}; RGBA Float16; ${compressed.size} bytes; máximo ${peak.toFixed(3)}; flipY=false; espacio lineal; CubeUVReflectionMapping.`;
+result.dispose();pmrem.dispose();room.dispose();renderer.dispose();};
+</script></html>

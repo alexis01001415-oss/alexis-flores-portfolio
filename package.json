@@ -12,6 +12,7 @@
   "dependencies": {
     "@fontsource/yantramanav": "^5.2.0",
     "gsap": "^3.13.0",
+    "lenis": "^1.3.26",
     "three": "^0.180.0"
   },
   "devDependencies": {

@@ -1,164 +1,129 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import gsap from 'gsap';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-type StudioOptions = { paused: boolean; onStatus: (message: string) => void };
+type Options = { progress: (percent: number, stage: string) => void; signal: AbortSignal };
+type Pose = { p:number; x:number; y:number; z:number; ry:number; rz:number; lid:number; desk:number; camera:[number,number,number]; target:[number,number,number] };
+const poses:Pose[] = [
+  {p:0,x:0,y:.042,z:.08,ry:0,rz:0,lid:-8,desk:0,camera:[2.8,5,7.2],target:[0,1.8,0]},
+  {p:.10,x:0,y:.12,z:.08,ry:0,rz:0,lid:-18,desk:-.3,camera:[3,4.8,10],target:[0,1,0]},
+  {p:.28,x:-2.35,y:.5,z:.1,ry:.16,rz:.04,lid:-105,desk:-5,camera:[0,3.1,8.5],target:[0,1,0]},
+  {p:.40,x:-2.35,y:.55,z:.1,ry:.08,rz:.02,lid:-105,desk:-8,camera:[0,3.1,8.5],target:[0,1,0]},
+  {p:.59,x:2.25,y:.5,z:.2,ry:-.38,rz:-.05,lid:-105,desk:-10,camera:[0,3.3,8.4],target:[0,1,0]},
+  {p:.72,x:2.25,y:.65,z:.2,ry:-.28,rz:-.035,lid:-108,desk:-10,camera:[0,3.3,8.4],target:[0,1,0]},
+  {p:.90,x:2.65,y:.4,z:.7,ry:-.42,rz:.03,lid:-100,desk:-10,camera:[0,2.8,7.7],target:[0,1,0]},
+  {p:1,x:2.65,y:.65,z:.9,ry:-.25,rz:.015,lid:-105,desk:-10,camera:[0,2.7,7.4],target:[0,1,0]},
+];
+const smooth=(x:number)=>x*x*(3-2*x);
+const mix=THREE.MathUtils.lerp;
 
-export async function createStudio(options: StudioOptions) {
-  const host = document.querySelector<HTMLElement>('#studio-canvas')!;
-  const studioElement = document.querySelector<HTMLElement>('#studio')!;
-  let paused = options.paused;
-  let active = true;
-  let lost = false;
-  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 800 ? 1.35 : 1.6));
-  renderer.setClearColor(0x000000, 0);
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.1;
-  renderer.shadowMap.enabled = innerWidth >= 800;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+export async function createExperience(host:HTMLElement, footer:HTMLElement, options:Options){
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(40,1,.1,100);
+  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth<900?1.35:1.75));
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.02;
+  renderer.shadowMap.enabled=window.innerWidth>800;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   host.append(renderer.domElement);
-  const scene = new THREE.Scene();
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  const room = new RoomEnvironment();
-  const environment = pmrem.fromScene(room, .04).texture;
-  scene.environment = environment;
-  scene.environmentIntensity = .65;
-  room.dispose(); pmrem.dispose();
-  scene.add(new THREE.HemisphereLight(0xf2f2df, 0x273323, 1.1));
-  const key = new THREE.DirectionalLight(0xfff9e7, 3); key.position.set(-3, 8, 6); key.castShadow = true; key.shadow.mapSize.set(1024, 1024); key.shadow.camera.left = -5; key.shadow.camera.right = 5; key.shadow.camera.top = 5; key.shadow.camera.bottom = -5; key.shadow.normalBias = .025; key.shadow.bias = -.0002; scene.add(key);
-  const rim = new THREE.DirectionalLight(0xd6f36b, 1.5); rim.position.set(-5, 4, -4); scene.add(rim);
-  const camera = new THREE.OrthographicCamera(-4, 4, 4, -4, .1, 100);
-  camera.position.set(7.8, 7.4, 10.5); camera.lookAt(0, 1.15, .2);
-  let gltf;
-  try { gltf = await new GLTFLoader().loadAsync(`${import.meta.env.BASE_URL}models/studio.glb`); }
-  catch (error) { environment.dispose(); renderer.dispose(); renderer.domElement.remove(); throw error; }
-  const model = gltf.scene;
-  model.traverse(object => { const mesh = object as THREE.Mesh; if (mesh.isMesh) { mesh.castShadow = true; mesh.receiveShadow = true; } });
-  scene.add(model);
-  const pivot = model.getObjectByName('Studio') || model;
-  const cat = model.getObjectByName('Cat');
-  const head = model.getObjectByName('CatHead');
-  const tail = model.getObjectByName('CatTail');
-  const legLeft = model.getObjectByName('CatLegLeft');
-  const legRight = model.getObjectByName('CatLegRight');
-  const eyesOpen = model.getObjectByName('CatEyesOpen');
-  const eyesClosed = model.getObjectByName('CatEyesClosed');
-  const catOrigin = cat?.position.clone();
-  const headRotation = head?.rotation.clone();
-  const tailRotation = tail?.rotation.clone();
-  let awake = false;
-  let animation: gsap.core.Timeline | undefined;
-  const pointer = new THREE.Vector2();
-  function resize() { const width = host.clientWidth; const height = host.clientHeight; const aspect = width / Math.max(1, height); const vertical = 7.25; camera.left = -vertical * aspect / 2; camera.right = vertical * aspect / 2; camera.top = vertical / 2; camera.bottom = -vertical / 2; camera.updateProjectionMatrix(); renderer.setSize(width, height, false); render(); }
-  function render() { if (!lost) renderer.render(scene, camera); }
-  const resizeObserver = new ResizeObserver(resize); resizeObserver.observe(host);
-  const visibility = new IntersectionObserver(entries => { active = entries[0].isIntersecting; if (active) render(); }, { rootMargin: '100px' }); visibility.observe(studioElement);
-  studioElement.addEventListener('pointermove', e => { const bounds = studioElement.getBoundingClientRect(); pointer.set((e.clientX - bounds.left) / bounds.width - .5, (e.clientY - bounds.top) / bounds.height - .5); if (paused) render(); });
-  studioElement.addEventListener('pointerleave', () => pointer.set(0, 0));
-  renderer.domElement.addEventListener('webglcontextlost', e => { e.preventDefault(); lost = true; studioElement.classList.remove('is-ready'); });
-  renderer.domElement.addEventListener('webglcontextrestored', () => { lost = false; resize(); studioElement.classList.add('is-ready'); });
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && active) render(); });
-  let lastTime = 0;
-  let frameId = 0;
-  function tick(time: number) {
-    frameId = requestAnimationFrame(tick);
-    if (!active || document.hidden || lost || paused || time - lastTime < 1000 / 30) return;
-    lastTime = time;
-    if (!paused) {
-      pivot.rotation.y = THREE.MathUtils.lerp(pivot.rotation.y, pointer.x * .18 + Math.min(window.scrollY / 2000, .2), .06);
-      if (cat && !awake && catOrigin) cat.scale.y = 1 + Math.sin(time * .0015) * .012;
-      if (tail && tailRotation && !awake) tail.rotation.y = tailRotation.y + Math.sin(time * .001) * .045;
+  let env:THREE.DataTexture|undefined;
+  scene.add(new THREE.HemisphereLight(0xf2eae3,0x3a2827,.45));
+  const key=new THREE.DirectionalLight(0xfff1e2,2.8);key.position.set(-3,7,5);key.castShadow=true;
+  key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-7;key.shadow.camera.right=7;key.shadow.camera.top=6;key.shadow.camera.bottom=-6;key.shadow.normalBias=.025;key.shadow.bias=-.0003;scene.add(key);
+  const fill=new THREE.DirectionalLight(0xe2e8ff,1.5);fill.position.set(5,4,-3);scene.add(fill);
+  const rim=new THREE.PointLight(0xff073a,32,18,2);rim.position.set(3,2,-2);scene.add(rim);
+  let model:THREE.Group|undefined;
+  const cleanup=()=>{renderer.dispose();renderer.domElement.remove();env?.dispose();model?.traverse(obj=>{if(obj instanceof THREE.Mesh){obj.geometry.dispose();const mats=Array.isArray(obj.material)?obj.material:[obj.material];for(const mat of mats){for(const value of Object.values(mat)){if(value instanceof THREE.Texture)value.dispose()}mat.dispose()}}})};
+  try {
+    const lighting=await fetch(`${import.meta.env.BASE_URL}models/studio-environment.pmrem`,{signal:options.signal});
+    if(!lighting.ok||!lighting.body)throw new Error('No se pudo cargar la iluminación');
+    const lightingBuffer=await new Response(lighting.body.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
+    env=new THREE.DataTexture(new Uint16Array(lightingBuffer),384,512,THREE.RGBAFormat,THREE.HalfFloatType);
+    env.mapping=THREE.CubeUVReflectionMapping;env.minFilter=THREE.LinearFilter;env.magFilter=THREE.LinearFilter;env.colorSpace=THREE.LinearSRGBColorSpace;env.needsUpdate=true;scene.environment=env;scene.environmentIntensity=.75;
+    const response=await fetch(`${import.meta.env.BASE_URL}models/workstation-v2.glb`,{signal:options.signal});
+    if(!response.ok)throw new Error('No se pudo cargar el estudio');
+    const size=Number(response.headers.get('content-length'));
+    let buffer:ArrayBuffer;
+    if(response.body&&size){
+      const reader=response.body.getReader();const chunks:Uint8Array[]=[];let received=0;
+      while(true){const {done,value}=await reader.read();if(done)break;chunks.push(value);received+=value.length;options.progress(Math.min(84,Math.round(received/size*84)),'Cargando geometría y materiales');}
+      const bytes=new Uint8Array(received);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}buffer=bytes.buffer;
+    }else{buffer=await response.arrayBuffer();}
+    options.progress(86,'Montando el estudio en 3D');
+    if(options.signal.aborted)throw new DOMException('Aborted','AbortError');
+    const manager=new THREE.LoadingManager();let textureFailed=false;manager.onError=()=>{textureFailed=true};
+    const gltf=await new GLTFLoader(manager).parseAsync(buffer,'');model=gltf.scene;
+    if(textureFailed)throw new Error('No se pudieron cargar los materiales del modelo');
+    if(options.signal.aborted)throw new DOMException('Aborted','AbortError');
+    model.traverse(obj=>{if(obj instanceof THREE.Mesh){obj.castShadow=true;obj.receiveShadow=true;const materials=Array.isArray(obj.material)?obj.material:[obj.material];materials.forEach(mat=>{if(mat instanceof THREE.MeshPhysicalMaterial){mat.transmission=0;mat.clearcoat=.1;}if(mat instanceof THREE.MeshStandardMaterial){mat.envMapIntensity=.85;if(mat.map)mat.map.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());}})}});
+    scene.add(model);
+    const laptop=model.getObjectByName('Laptop')!;
+    const lid=model.getObjectByName('LaptopLid')!;
+    const desk=model.getObjectByName('Desk')!;
+    const props=['CoffeeCup','Notebook','Pen','AccentObject'].map(name=>model!.getObjectByName(name)!).filter(Boolean);
+    const propPositions=props.map(obj=>obj.position.clone());
+    const screen=model.getObjectByName('ScreenSurface') as THREE.Mesh;
+    const screenMaps:THREE.Texture[]=[];
+    let screenMode=-1;
+    if(screen){const mat=screen.material as THREE.MeshStandardMaterial;if(mat.map){screenMaps.push(mat.map);screen.material=new THREE.MeshBasicMaterial({map:mat.map,toneMapped:false});mat.dispose();}}
+    function screenDesign(mode:number){const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=628;const ctx=canvas.getContext('2d')!;
+      ctx.fillStyle=mode===1?'#F2EAE3':'#131211';ctx.fillRect(0,0,1024,628);ctx.fillStyle=mode===1?'#131211':'#F2EAE3';ctx.font='500 18px Yantramanav';ctx.fillText(mode===1?'AF / SISTEMA VISUAL':'AF / INTERACCIÓN',52,54);ctx.fillText(mode===1?'02':'03',930,54);
+      ctx.font='700 94px Yantramanav';ctx.fillText(mode===1?'Menos ruido.':'Diseño en',52,225);ctx.fillText(mode===1?'Más intención.':'movimiento.',52,320);
+      ctx.strokeStyle=mode===1?'#13121130':'#f2eae340';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(52,380);ctx.lineTo(972,380);ctx.stroke();
+      if(mode===1){ctx.fillStyle='#131211';ctx.fillRect(52,430,260,126);ctx.fillStyle='#D0C9C3';ctx.fillRect(332,430,260,126);ctx.fillStyle='#FF073A';ctx.fillRect(612,430,360,126);}else{ctx.fillStyle='#F2EAE3';ctx.font='400 21px Yantramanav';ctx.fillText('UN GESTO. UNA RESPUESTA. UNA CONEXIÓN.',52,434);ctx.strokeStyle='#ff073a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(52,520);ctx.bezierCurveTo(220,520,280,400,480,520);ctx.bezierCurveTo(650,630,760,390,970,510);ctx.stroke();ctx.fillStyle='#ff073a';ctx.beginPath();ctx.arc(790,493,25,0,Math.PI*2);ctx.fill();}
+      const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;texture.flipY=false;return texture;
     }
-    render();
-  }
-  resize();
-  studioElement.classList.add('is-ready');
-  frameId = requestAnimationFrame(tick);
-
-  // Reuse the Blender chair and cat for a second scene, rendered only in the footer.
-  let footerRenderer: THREE.WebGLRenderer | undefined;
-  let footerScene: THREE.Scene | undefined;
-  let footerCamera: THREE.OrthographicCamera | undefined;
-  let footerModel: THREE.Group | undefined;
-  let footerVisible = false;
-  const footerHost = document.createElement('div'); footerHost.className = 'footer-three'; footerHost.setAttribute('aria-hidden', 'true');
-  document.querySelector('.contact-main')!.append(footerHost);
-  const footerResize = new ResizeObserver(() => {
-    if (!footerRenderer || !footerCamera) return;
-    const aspect = footerHost.clientWidth / Math.max(1, footerHost.clientHeight);
-    footerCamera.left = -2.3 * aspect; footerCamera.right = 2.3 * aspect; footerCamera.updateProjectionMatrix();
-    footerRenderer.setSize(footerHost.clientWidth, footerHost.clientHeight, false);
-    if (footerScene) footerRenderer.render(footerScene, footerCamera);
-  });
-  function initFooter() {
-    if (footerRenderer) return;
-    try {
-      footerRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
-      footerRenderer.setPixelRatio(Math.min(devicePixelRatio, 1.35)); footerRenderer.setClearColor(0, 0); footerRenderer.toneMapping = THREE.ACESFilmicToneMapping; footerRenderer.toneMappingExposure = 1.2;
-      footerHost.append(footerRenderer.domElement);
-      footerScene = new THREE.Scene(); footerScene.add(new THREE.HemisphereLight(0xffffff, 0x44512c, 3.5));
-      const light = new THREE.DirectionalLight(0xfffbea, 5); light.position.set(-3, 6, 4); footerScene.add(light);
-      const fill = new THREE.DirectionalLight(0xd6f36b, 2); fill.position.set(4, 4, -2); footerScene.add(fill);
-      const chair = model.getObjectByName('Chair')?.clone(true);
-      if (chair) { footerModel = new THREE.Group(); chair.position.set(0, 0, 0); footerModel.add(chair); footerScene.add(footerModel); const box = new THREE.Box3().setFromObject(footerModel); const center = box.getCenter(new THREE.Vector3()); chair.position.sub(center); }
-      footerCamera = new THREE.OrthographicCamera(-2.3, 2.3, 2.3, -2.3, .1, 50); footerCamera.position.set(3, 2.8, 6); footerCamera.lookAt(0, 0, 0);
-      footerResize.observe(footerHost);
-      document.querySelector('.footer-orbit')?.classList.add('has-model');
-    } catch { footerHost.hidden = true; }
-  }
-  const footerObserver = new IntersectionObserver(entries => { footerVisible = entries[0].isIntersecting; if (footerVisible) initFooter(); }, { rootMargin: '150px' }); footerObserver.observe(document.querySelector('#contacto')!);
-  let lastFooter = 0;
-  function footerTick(time: number) { if (paused || !footerVisible || document.hidden || !footerRenderer || !footerScene || !footerCamera || time - lastFooter < 1 / 30) return; lastFooter = time; if (footerModel) { const rect = footerHost.getBoundingClientRect(); footerModel.rotation.y = -.2 + Math.max(-.3, Math.min(.3, rect.top / innerHeight * .4)); } footerRenderer.render(footerScene, footerCamera); }
-  gsap.ticker.add(footerTick);
-
-  async function wakeCat() {
-    if (!cat || !catOrigin || !head || !headRotation || awake) return;
-    awake = true;
-    const label = document.querySelector('#cat-label')!;
-    const action = document.querySelector('.cat-action')!;
-    options.onStatus('El gato despierta, se estira y juega antes de volver a descansar.');
-    label.textContent = 'Una pausa creativa.'; action.textContent = 'Miau.';
-    if (eyesOpen) eyesOpen.scale.setScalar(1);
-    if (eyesClosed) eyesClosed.visible = false;
-    if (paused) { head.rotation.x = headRotation.x + .25; render(); await new Promise(resolve => setTimeout(resolve, 1200)); head.rotation.copy(headRotation); render(); }
-    else await new Promise<void>(resolve => {
-      animation = gsap.timeline({ onComplete: resolve });
-      animation.to(head.rotation, { x: headRotation.x + .3, z: headRotation.z - .15, duration: .8, ease: 'power2.out' })
-        .to(cat.scale, { y: 1.12, x: .97, duration: .6 }, '<')
-        .to(cat.position, { y: catOrigin.y + .12, duration: .6 }, '<');
-      if (legLeft) animation.to(legLeft.rotation, { x: -.45, duration: .35, repeat: 3, yoyo: true }, '-=.1');
-      if (tail && tailRotation) animation.to(tail.rotation, { z: tailRotation.z + .45, y: tailRotation.y + .4, duration: .5, repeat: 3, yoyo: true }, '<');
-      animation.to(head.rotation, { y: headRotation.y + .45, duration: .55 }, '<.3')
-        .to(cat.position, { x: catOrigin.x + .12, z: catOrigin.z - .12, duration: .4, repeat: 3, yoyo: true }, '>.1');
-      if (legRight) animation.to(legRight.rotation, { x: .3, duration: .2, repeat: 5, yoyo: true }, '<');
-      // A short leap and walk across the desk, then back to the cushion.
-      model.updateMatrixWorld(true);
-      const deskTarget = cat.parent!.worldToLocal(new THREE.Vector3(-1.35, 2.24, -.1));
-      const nextTarget = cat.parent!.worldToLocal(new THREE.Vector3(-.55, 2.24, -.1));
-      animation.to(cat.position, { x: deskTarget.x, z: deskTarget.z, duration: .75, ease: 'power1.inOut' }, '+=.1')
-        .to(cat.position, { y: deskTarget.y + .35, duration: .38, ease: 'power2.out' }, '<')
-        .to(cat.position, { y: deskTarget.y, duration: .37, ease: 'power2.in' }, '>')
-        .to(cat.position, { x: nextTarget.x, z: nextTarget.z, duration: 1.4, ease: 'none' }, '+=.2');
-      if (legLeft) animation.to(legLeft.rotation, { x: -.4, duration: .18, repeat: 7, yoyo: true }, '<');
-      if (legRight) animation.to(legRight.rotation, { x: .4, duration: .18, repeat: 7, yoyo: true }, '<');
-      animation.to(cat.position, { x: catOrigin.x, z: catOrigin.z, duration: .8, ease: 'power1.inOut' }, '+=.3')
-        .to(cat.position, { y: deskTarget.y + .3, duration: .3, ease: 'power1.out' }, '<')
-        .to(cat.position, { y: catOrigin.y, duration: .5, ease: 'power2.in' }, '>');
-      animation.to(head.rotation, { x: headRotation.x, y: headRotation.y, z: headRotation.z, duration: 1 }, '+=.25')
-        .to(cat.scale, { x: 1, y: 1, z: 1, duration: 1 }, '<')
-        .to(cat.position, { x: catOrigin.x, y: catOrigin.y, z: catOrigin.z, duration: 1 }, '<');
-    });
-    if (eyesOpen) eyesOpen.scale.setScalar(.001);
-    if (eyesClosed) eyesClosed.visible = true;
-    awake = false; animation = undefined; label.textContent = 'Shhh… está creando.'; action.textContent = 'Despertar'; render();
-  }
-  return {
-    wakeCat,
-    setPaused(value: boolean) { paused = value; animation?.paused(value); render(); },
-    setTheme(theme: string) { renderer.toneMappingExposure = theme === 'light' ? 1 : 1.1; render(); },
-    dispose() { cancelAnimationFrame(frameId); animation?.kill(); resizeObserver.disconnect(); visibility.disconnect(); footerObserver.disconnect(); footerResize.disconnect(); gsap.ticker.remove(footerTick); environment.dispose(); model.traverse(object => { const mesh = object as THREE.Mesh; if (mesh.isMesh) { mesh.geometry.dispose(); const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]; materials.forEach(material => material.dispose()); } }); renderer.dispose(); footerRenderer?.dispose(); host.replaceChildren(); footerHost.remove(); },
-  };
+    if(screenMaps.length){screenMaps.push(screenDesign(1),screenDesign(2));}
+    let progress=0,paused=false,isFooter=false,light=false,visible=true,raf=0,disposed=false,ready=false,pointerX=0,pointerY=0,currentX=0,currentY=0;
+    let footerProgress=0;
+    const dark=new THREE.Color('#131211'),paper=new THREE.Color('#F2EAE3'),background=new THREE.Color();
+    const target=new THREE.Vector3();
+    function resize(){const parent=isFooter?footer:host;const w=parent.clientWidth,h=parent.clientHeight;if(w&&h){camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);requestRender();}}
+    function apply(){
+      const mobile=window.innerWidth<=800;
+      const p=paused?0:progress;
+      const nextScreen=isFooter?2:p>.79?2:p>.50?1:0;
+      if(screenMaps.length&&screenMode!==nextScreen){(screen.material as THREE.MeshBasicMaterial).map=screenMaps[nextScreen];screenMode=nextScreen;}
+      let i=0;while(i<poses.length-2&&p>poses[i+1].p)i++;
+      const a=poses[i],b=poses[i+1];const t=smooth(THREE.MathUtils.clamp((p-a.p)/(b.p-a.p),0,1));
+      const float=mobile?smooth(Math.min(1,p/.24)):0;
+      const v=(key:'x'|'y'|'z'|'ry'|'rz'|'lid'|'desk')=>mix(a[key],b[key],t);
+      laptop.position.set(mobile?v('x')*(1-float):v('x'),mobile?mix(v('y'),2.1,float):v('y'),v('z'));
+      laptop.rotation.set(0,v('ry')*(mobile?.6:1),v('rz'));
+      laptop.scale.setScalar(1);
+      lid.rotation.x=THREE.MathUtils.degToRad(paused?-105:v('lid'));
+      desk.position.y=v('desk');desk.visible=!isFooter;
+      props.forEach((obj,index)=>{obj.visible=!isFooter&&p<.29;const start=propPositions[index];const f=smooth(Math.min(1,p/.27));obj.position.set(start.x*(1+f*4),start.y+f*(5+index),start.z-f*(3+index));obj.rotation.y=f*(index%2?-1.5:1.3);obj.rotation.z=f*(index%2?.3:-.3)});
+      for(let c=0;c<3;c++){camera.position.setComponent(c,mix(a.camera[c],b.camera[c],t));target.setComponent(c,mix(a.target[c],b.target[c],t));}
+      if(mobile){camera.position.set(mix(.4,0,float),mix(6.3,4.1,float),mix(13,10.3,float));target.set(0,mix(1.1,.95,float),0);camera.fov=43;}else camera.fov=40;
+      const enter=smooth(THREE.MathUtils.clamp((p-.43)/.12,0,1));const leave=smooth(THREE.MathUtils.clamp((p-.73)/.11,0,1));
+      const pale=enter*(1-leave);
+      background.copy(dark).lerp(paper,pale);scene.background=background;
+      scene.environmentIntensity=.75+pale*.35+(light?.05:0);
+      document.documentElement.style.setProperty('--scene-ink',pale>.5?'#131211':'#f2eae3');
+      if(isFooter){scene.background=null;laptop.position.set(0,.4,0);laptop.rotation.set(.03,mix(-.6,-.22,paused?.5:footerProgress),-.11);laptop.scale.setScalar(1);lid.rotation.x=THREE.MathUtils.degToRad(-105);camera.position.set(.3,3.1,7.5);target.set(0,1,0);camera.fov=38;}
+      camera.position.x+=currentX*(mobile||paused?0:.22);camera.position.y+=currentY*(mobile||paused?0:.10);camera.lookAt(target);camera.updateProjectionMatrix();
+    }
+    function render(){raf=0;if(!ready||disposed||document.hidden||!visible)return;currentX=mix(currentX,pointerX,.09);currentY=mix(currentY,pointerY,.09);apply();renderer.render(scene,camera);if(Math.abs(currentX-pointerX)+Math.abs(currentY-pointerY)>.003)requestRender();}
+    function requestRender(){if(!raf&&!disposed)raf=requestAnimationFrame(render);}
+    resize();apply();options.progress(94,'Preparando luces y reflejos');
+    await renderer.compileAsync(scene,camera);
+    if(options.signal.aborted)throw new DOMException('Aborted','AbortError');
+    ready=true;
+    renderer.render(scene,camera);
+    document.querySelector('.journey')?.classList.add('scene-ready');
+    const observer=new ResizeObserver(resize);observer.observe(host);observer.observe(footer);
+    const visibility=()=>{if(!document.hidden)requestRender()};document.addEventListener('visibilitychange',visibility);
+    return {
+      setProgress(value:number){progress=value;requestRender()},
+      setPointer(x:number,y:number){pointerX=x;pointerY=y;requestRender()},
+      setPaused(value:boolean){paused=value;requestRender()},
+      setLight(value:boolean){light=value;requestRender()},
+      setVisible(value:boolean){visible=value;if(value)requestRender()},
+      setFooter(value:boolean,p=0){footerProgress=p;if(value!==isFooter){isFooter=value;(value?footer:host).append(renderer.domElement);resize();}requestRender()},
+      dispose(){disposed=true;cancelAnimationFrame(raf);observer.disconnect();document.removeEventListener('visibilitychange',visibility);screenMaps.forEach(texture=>texture.dispose());cleanup()},
+    };
+  }catch(error){cleanup();throw error}
 }
+export type Experience = Awaited<ReturnType<typeof createExperience>>;
