@@ -1,4 +1,5 @@
 import lighthouse from 'lighthouse';
+import desktopConfig from 'lighthouse/core/config/desktop-config.js';
 import * as chromeLauncher from 'chrome-launcher';
 import { mkdir, writeFile } from 'node:fs/promises';
 
@@ -12,8 +13,7 @@ try {
     output: ['json', 'html'],
     logLevel: 'error',
     onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
-    ...(desktop ? { formFactor: 'desktop', screenEmulation: { mobile: false, width: 1440, height: 900, deviceScaleFactor: 1, disabled: false } } : {}),
-  });
+  }, desktop ? desktopConfig : undefined);
   const label = desktop ? 'desktop' : 'mobile';
   await writeFile(`artifacts/lighthouse-${label}.json`, result.report[0]);
   await writeFile(`artifacts/lighthouse-${label}.html`, result.report[1]);
