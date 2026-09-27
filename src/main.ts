@@ -64,7 +64,7 @@ function setupMotion(){
     if(!paused){
       $$('.reveal').forEach(el=>gsap.from(el,{y:48,opacity:0,duration:1,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 94%',once:true}}));
       $$('.process-list article').forEach(el=>gsap.from(el,{y:30,opacity:0,duration:.8,scrollTrigger:{trigger:el,start:'top 95%',once:true}}));
-      gsap.fromTo('.timeline-ink',{strokeDashoffset:1},{strokeDashoffset:0,ease:'none',scrollTrigger:{trigger:'.career-timeline',start:'top 65%',end:'bottom 65%',scrub:.5}});
+      gsap.fromTo('.timeline-ink',{strokeDashoffset:1},{strokeDashoffset:0,autoRound:false,ease:'none',scrollTrigger:{trigger:'.career-timeline',start:'top 65%',end:'bottom 65%',scrub:.5}});
       $$('.career-stop').forEach(stop=>ScrollTrigger.create({trigger:stop,start:'top 60%',end:'bottom 40%',toggleClass:'is-current'}));
       $$('.case-image img').forEach(img=>gsap.fromTo(img,{yPercent:4,scale:1.08},{yPercent:-4,scale:1.08,ease:'none',scrollTrigger:{trigger:img.closest('.case-study'),start:'top bottom',end:'bottom top',scrub:1}}));
       const media=gsap.matchMedia();media.add('(min-width: 801px) and (min-height: 700px)',()=>{

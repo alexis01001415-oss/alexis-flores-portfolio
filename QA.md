@@ -34,7 +34,7 @@ La preferencia de movimiento reducido y el fallback de WebGL se conservan. Su l�
 | Bloqueo total | 440 ms | 140 ms |
 | CLS | 0 | 0.005 |
 
-Las mediciones pertenecen a v3. Después de la medición de escritorio se alinearon las etiquetas accesibles con el texto visible; la auditoría móvil confirmó esa corrección. Después de ambas se corrigió únicamente la codificación de algunos acentos en mensajes de JavaScript. No son datos de visitantes ni una medición continua de FPS. WebGL sigue siendo el principal coste inicial móvil.
+Las mediciones pertenecen a v3. Después de la medición de escritorio se alinearon las etiquetas accesibles con el texto visible; la auditoría móvil confirmó esa corrección. Después de ambas se corrigieron algunos acentos en mensajes de JavaScript y se desactivó el redondeo de GSAP para que el trazado normalizado del CV avance de forma gradual. Se comprobó visualmente y con valores intermedios de `stroke-dashoffset`. No son datos de visitantes ni una medición continua de FPS. WebGL sigue siendo el principal coste inicial móvil.
 
 Los botones rojos con texto marfil tienen un contraste calculado de 5.01:1. La puntuación automática no equivale a una certificación WCAG ni garantiza posiciones en buscadores.
 
