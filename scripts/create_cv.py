@@ -1,4 +1,4 @@
-"""Create Alexis Flores's one-page CV from confirmed professional information.
+"""Create Felix Alexis Flores Rojas's one-page CV from verified information.
 
 Requires: reportlab, fonttools. Run from any directory with Python 3.
 Fonts come from the repository's @fontsource/yantramanav npm dependency.
@@ -25,7 +25,7 @@ OUTPUT = ROOT / "output/pdf/Alexis-Flores-CV.pdf"
 PUBLIC = ROOT / "public/documents/Alexis-Flores-CV.pdf"
 TEMP = ROOT / "tmp/pdfs"
 PAGE_W, PAGE_H = A4
-LEFT = 48
+LEFT = 43
 RIGHT = PAGE_W - LEFT
 WIDTH = RIGHT - LEFT
 IVORY = colors.HexColor("#F2EAE3")
@@ -54,27 +54,27 @@ def make_pdf():
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     PUBLIC.parent.mkdir(parents=True, exist_ok=True)
     pdf = canvas.Canvas(str(OUTPUT), pagesize=A4, pageCompression=1, invariant=1)
-    pdf.setTitle("Alexis Flores | CV - UX/UI y desarrollo front-end")
-    pdf.setAuthor("Alexis Flores")
-    pdf.setSubject("Perfil profesional, experiencia, competencias y proyectos seleccionados")
-    pdf.setKeywords("Alexis Flores, CV, UX, UI, front-end, HTML, CSS, JavaScript, Framer, Webflow, WordPress, Blender")
+    pdf.setTitle("Félix Alexis Flores Rojas | CV - Diseño UX/UI y desarrollo front-end")
+    pdf.setAuthor("Félix Alexis Flores Rojas")
+    pdf.setSubject("Experiencia profesional, formación y competencias")
+    pdf.setKeywords("Félix Alexis Flores Rojas, Alexis Flores, CV, UX, UI, front-end, HTML, CSS, JavaScript, Figma, Framer, Webflow, WordPress, Blender")
     pdf.setFillColor(IVORY)
     pdf.rect(0, 0, PAGE_W, PAGE_H, fill=1, stroke=0)
     pdf.setFillColor(RED)
-    pdf.rect(LEFT, PAGE_H - 30, 40, 4, fill=1, stroke=0)
+    pdf.rect(LEFT, PAGE_H - 28, 36, 3, fill=1, stroke=0)
 
     def text(value, top, size=11.5, bold=False, color=INK, x=LEFT):
         pdf.setFont("Yantramanav-Bold" if bold else "Yantramanav", size)
         pdf.setFillColor(color)
         pdf.drawString(x, PAGE_H - top, value)
 
-    def paragraph(value, top, size=11.6, leading=15.8, color=INK, width=WIDTH):
+    def paragraph(value, top, size=11.5, leading=15, color=INK, width=WIDTH, x=LEFT):
         style = ParagraphStyle("body", fontName="Yantramanav", fontSize=size,
                                leading=leading, textColor=color, alignment=TA_LEFT,
                                spaceBefore=0, spaceAfter=0)
         p = Paragraph(value, style)
         _, height = p.wrap(width, PAGE_H)
-        p.drawOn(pdf, LEFT, PAGE_H - top - height)
+        p.drawOn(pdf, x, PAGE_H - top - height)
         return height
 
     def section(title, top):
@@ -84,58 +84,87 @@ def make_pdf():
         pdf.setLineWidth(0.55)
         pdf.line(LEFT + title_width + 16, PAGE_H - top + 3, RIGHT, PAGE_H - top + 3)
 
-    def link(label, uri, top, size=10.8):
-        text(label, top, size=size, color=RED)
+    def link(label, uri, top, size=10.8, x=LEFT):
+        text(label, top, size=size, color=RED, x=x)
         width = pdfmetrics.stringWidth(label, "Yantramanav", size)
         baseline = PAGE_H - top
-        pdf.linkURL(uri, (LEFT, baseline - 3, LEFT + width, baseline + size), relative=0, thickness=0)
+        pdf.linkURL(uri, (x, baseline - 3, x + width, baseline + size), relative=0, thickness=0)
 
-    # One column and real text preserve a simple reading order for CV parsers.
-    text("ALEXIS FLORES", 79, size=37, bold=True)
-    text("Diseñador UX/UI y desarrollador front-end", 108, size=16.5, bold=True)
-    link("Portafolio: alexis01001415-oss.github.io/alexis-flores-portfolio/",
-         "https://alexis01001415-oss.github.io/alexis-flores-portfolio/", 131)
-    link("GitHub: github.com/alexis01001415-oss", "https://github.com/alexis01001415-oss", 148)
+    # One column and live text preserve a predictable reading order for parsers.
+    text("FÉLIX ALEXIS FLORES ROJAS", 66, size=29, bold=True)
+    text("Diseñador UX/UI y desarrollador front-end", 90, size=15.8, bold=True)
+    link("alexisfr.14@outlook.com", "mailto:alexisfr.14@outlook.com", 112, size=10.7)
+    link("+52 55 4236 0215", "tel:+525542360215", 112, size=10.7, x=LEFT + 165)
+    links = [
+        ("Portafolio", "https://alexis01001415-oss.github.io/alexis-flores-portfolio/", LEFT),
+        ("LinkedIn", "https://www.linkedin.com/in/felix-alexis-flores-rojas-94a885265/", LEFT + 65),
+        ("GitHub", "https://github.com/alexis01001415-oss", LEFT + 124),
+        ("Behance", "https://www.behance.net/alexisflores01001415", LEFT + 180),
+    ]
+    for label, uri, x in links:
+        link(label, uri, 129, size=10.6, x=x)
 
-    section("PERFIL", 181)
     paragraph(
-        "Combino diseño UX/UI y desarrollo front-end para crear experiencias digitales claras y con personalidad. "
-        "Trabajo con código, herramientas de diseño web y Blender. Integro el desarrollo asistido por IA "
-        "en mi proceso de exploración y construcción de interfaces.", 191)
+        "Diseño interfaces web y las llevo a producción con HTML, CSS, JavaScript y WordPress. "
+        "Mi trabajo incluye investigación de usuarios, prototipos en Figma, pruebas de usabilidad "
+        "y mejoras de accesibilidad, navegación y rendimiento.", 145, size=11.4, leading=14.2)
 
-    section("EXPERIENCIA PROFESIONAL", 269)
-    text("T-Line México", 295, size=15, bold=True)
-    text("2023 - 2026", 295, size=11, color=MUTED, x=RIGHT - 57)
-    text("Profesional de UX/UI y front-end developer", 316, size=12)
-    text("Grupo Victus", 348, size=15, bold=True)
-    text("Anteriormente", 348, size=11, color=MUTED, x=RIGHT - 68)
-    text("Diseñador web y diseñador UX/UI", 369, size=12)
+    section("EXPERIENCIA PROFESIONAL", 207)
 
-    section("COMPETENCIAS Y HERRAMIENTAS", 407)
-    rows = [
-        ("Diseño digital", "UX/UI, diseño web e interfaces responsive."),
-        ("Desarrollo front-end", "HTML, CSS, JavaScript y GitHub."),
-        ("Plataformas web", "WordPress, Framer y Webflow."),
-        ("3D e IA", "Blender y desarrollo asistido por IA (vibe coding)."),
+    def job(company, role, dates, top, bullets):
+        text(company, top, size=14.2, bold=True)
+        date_width = pdfmetrics.stringWidth(dates, "Yantramanav", 10.3)
+        text(dates, top, size=10.3, color=MUTED, x=RIGHT - date_width)
+        text(role, top + 17, size=11.5, bold=True, color=RED)
+        cursor = top + 28
+        for value in bullets:
+            text("-", cursor + 10.6, size=11.5, color=MUTED)
+            height = paragraph(escape(value), cursor, width=WIDTH - 11, x=LEFT + 11)
+            cursor += height + 3.5
+        return cursor
+
+    # The latest direct statement controls T-Line dates and current role.
+    next_top = job("T-Line México", "Profesional de UX/UI y desarrollador front-end", "2023 - 2026", 232, [
+        "Diseño y desarrollo de sitios responsive en WordPress; personalización con HTML, CSS y JavaScript.",
+        "Wireframes, prototipos y flujos en Figma; pruebas de usabilidad y revisión de feedback de usuarios.",
+        "Mejoras de velocidad, SEO y accesibilidad; mantenimiento de temas y complementos.",
+        "Diseño de interfaces en Odoo y coordinación con desarrollo para implementar las propuestas.",
+    ])
+    next_top = job("Grupo Invictus", "Diseñador web y diseñador UX/UI", "Mar. 2023 - abr. 2024", next_top + 16, [
+        "Diseño de interfaces, dashboards y prototipos en Figma; definición y validación de flujos de usuario.",
+        "Pruebas de usabilidad e iteraciones con feedback; aplicación de criterios responsive y de accesibilidad.",
+        "Colaboración con desarrollo y clientes para definir requerimientos y alinear las soluciones.",
+    ])
+    next_top = job("Fundación ADO", "Diseñador gráfico", "Jun. 2022 - mar. 2023", next_top + 16, [
+        "Diseño de materiales informativos, campañas visuales e identificadores gráficos; videos corporativos.",
+    ])
+    next_top = job("Mobility ADO", "Auxiliar administrativo", "Nov. 2019 - nov. 2020", next_top + 16, [
+        "Facturación, bases de datos, comunicación interna y apoyo en la coordinación de eventos.",
+    ])
+
+    section("FORMACIÓN", next_top + 21)
+    h = paragraph(
+        "<b>Licenciatura en Diseño Gráfico y Animación Digital</b><br/>"
+        "Universidad Autónoma de Tamaulipas · Ago. 2021 - jul. 2024<br/>"
+        "<b>Certificación profesional en Diseño UX de Google</b> · Coursera · Jun. 2022 - dic. 2023<br/>"
+        "Cursos: UX/UI (Udemy); diseño UX/UI, producto, desarrollo web e inglés (Platzi).",
+        next_top + 31, size=11.2, leading=14.7)
+
+    skill_top = next_top + 31 + h + 24
+    section("COMPETENCIAS Y HERRAMIENTAS", skill_top)
+    skills = [
+        ("UX/UI", "Investigación, prototipado, pruebas de usabilidad, Figma, FigJam, Miro y Maze."),
+        ("Web", "HTML, CSS, JavaScript, GitHub, WordPress, Elementor, Framer, Webflow, Shopify y Odoo."),
+        ("Visual e interacción", "Photoshop, Illustrator, Blender, Rive y LottieFiles."),
+        ("IA", "Desarrollo asistido por inteligencia artificial (vibe coding)."),
     ]
-    for index, (label, value) in enumerate(rows):
-        paragraph(f"<b>{escape(label)}</b>  {escape(value)}", 421 + index * 22, size=11.7, leading=15.5)
-
-    section("PROYECTOS SELECCIONADOS", 538)
-    projects = [
-        ("Curiosity Marketplace", "marketplace.curiositycloud.com", "https://marketplace.curiositycloud.com/"),
-        ("Macloud Seguridad Privada Residencial", "seguridadmacloud.com.mx", "https://seguridadmacloud.com.mx/"),
-        ("Gatical Seguridad Privada - Acapulco", "gaticalseguridadprivada.framer.website", "https://gaticalseguridadprivada.framer.website/"),
-    ]
-    for index, (name, label, uri) in enumerate(projects):
-        top = 564 + index * 43
-        text(name, top, size=12.6, bold=True)
-        link(label, uri, top + 17, size=10.4)
-
-    pdf.setStrokeColor(RULE)
-    pdf.setLineWidth(0.55)
-    pdf.line(LEFT, 51, RIGHT, 51)
-    text("Alexis Flores  /  Diseño UX/UI + desarrollo front-end", PAGE_H - 34, size=9, color=MUTED)
+    cursor = skill_top + 10
+    for label, value in skills:
+        cursor += paragraph(f"<b>{escape(label)}:</b> {escape(value)}", cursor,
+                            size=11.2, leading=14.4) + 2
+    if cursor > PAGE_H - 28:
+        raise RuntimeError(f"CV content overflows page: last element at {cursor:.1f} pt")
+    print(f"Content ends at {cursor:.1f} pt; bottom margin {PAGE_H - cursor:.1f} pt")
     pdf.showPage()
     pdf.save()
     copyfile(OUTPUT, PUBLIC)

@@ -1,257 +1,352 @@
 import './portrait.css';
 
-/** A cached character portrait, revealed through a soft cursor mask. */
+const vertexSource = `
+  attribute vec2 aPosition;
+  varying vec2 vUv;
+  void main() {
+    vUv = vec2(aPosition.x * 0.5 + 0.5, 0.5 - aPosition.y * 0.5);
+    gl_Position = vec4(aPosition, 0.0, 1.0);
+  }
+`;
+
+const fragmentSource = `
+  precision mediump float;
+  uniform sampler2D uPhoto;
+  uniform vec2 uResolution;
+  uniform vec2 uPointer;
+  uniform vec2 uVelocity;
+  uniform vec4 uCrop;
+  uniform float uStrength;
+  varying vec2 vUv;
+
+  vec3 photograph(vec2 uv) {
+    return texture2D(uPhoto, clamp(uCrop.xy + uv * uCrop.zw, 0.001, 0.999)).rgb;
+  }
+
+  void main() {
+    vec2 proportion = uResolution / min(uResolution.x, uResolution.y);
+    vec2 delta = (vUv - uPointer) * proportion;
+    float angle = atan(delta.y, delta.x);
+    // The edge follows a slightly irregular lens, rather than a perfect circle.
+    float organic = sin(angle * 3.0 + uPointer.x * 4.0) * 0.009
+                  + cos(angle * 5.0 - uPointer.y * 3.0) * 0.004;
+    float distance = length(delta) + organic;
+    float mask = 1.0 - smoothstep(0.215, 0.325, distance);
+    float alpha = mask * uStrength;
+    if (alpha < 0.002) {
+      gl_FragColor = vec4(0.0);
+      return;
+    }
+
+    // Small, local refraction keeps the face recognizable, even during movement.
+    float glass = smoothstep(0.07, 0.24, distance)
+                * (1.0 - smoothstep(0.24, 0.33, distance));
+    vec2 displacement = delta * (0.016 * glass) / proportion;
+    displacement += uVelocity * 0.006 * mask;
+    vec2 uv = vUv - displacement * uStrength;
+    vec2 fringe = delta * (0.0023 * glass * uStrength) / proportion;
+    vec3 color;
+    color.r = photograph(uv + fringe).r;
+    color.g = photograph(uv).g;
+    color.b = photograph(uv - fringe).b;
+    color = (color - 0.5) * 1.035 + 0.5;
+    // A soft, directional reflection is confined to the glass edge.
+    float reflection = glass * max(0.0, dot(normalize(delta + 0.0001), vec2(-0.6, -0.8)));
+    color += vec3(0.026, 0.024, 0.022) * reflection;
+    gl_FragColor = vec4(clamp(color, 0.0, 1.0), alpha);
+  }
+`;
+
+/** An optional, decorative WebGL lens over the original accessible photograph. */
 export function setupPortrait(figure: HTMLElement, reduced: MediaQueryList): { dispose(): void } {
   const photo = figure.querySelector<HTMLImageElement>('img');
   if (!photo) return { dispose() {} };
 
   const canvas = document.createElement('canvas');
-  canvas.className = 'portrait-ascii';
+  canvas.className = 'portrait-webgl';
   canvas.setAttribute('aria-hidden', 'true');
-  const context = canvas.getContext('2d', { alpha: true });
-  const field = document.createElement('canvas');
-  const fieldContext = field.getContext('2d');
-  const sample = document.createElement('canvas');
-  const sampleContext = sample.getContext('2d', { willReadFrequently: true });
-  if (!context || !fieldContext || !sampleContext) return { dispose() {} };
-
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'portrait-ascii-toggle';
-  button.hidden = true;
-  button.setAttribute('aria-pressed', 'false');
-  const icon = document.createElement('span');
-  icon.className = 'icon';
-  icon.setAttribute('aria-hidden', 'true');
-  icon.textContent = 'grid_view';
-  const label = document.createElement('span');
-  label.textContent = 'Ver retrato ASCII';
-  button.append(icon, label);
+  canvas.hidden = true;
   photo.after(canvas);
-  figure.append(button);
 
-  const hover = matchMedia('(hover: hover) and (pointer: fine)');
-  let width = 0;
-  let height = 0;
-  let ratio = 1;
+  let gl: WebGLRenderingContext | null = null;
+  let program: WebGLProgram | null = null;
+  let buffer: WebGLBuffer | null = null;
+  let texture: WebGLTexture | null = null;
+  let uniforms: Record<string, WebGLUniformLocation | null> = {};
   let ready = false;
   let disposed = false;
-  let full = false;
-  let inside = false;
-  let visible = true;
+  let failed = false;
+  let inView = false;
   let frame = 0;
   let resizeFrame = 0;
-  let x = 0;
-  let y = 0;
-  let targetX = 0;
-  let targetY = 0;
-  let radius = 0;
-  let targetRadius = 0;
-  let lastTime = 0;
-  let moveTime = 0;
-  let velocity = 0;
+  let previousTime = 0;
+  let width = 1;
+  let height = 1;
+  let inside = false;
+  let touchDown = false;
+  let x = 0.5;
+  let y = 0.45;
+  let targetX = x;
+  let targetY = y;
+  let strength = 0;
+  let targetStrength = 0;
+  let velocityX = 0;
+  let velocityY = 0;
+  const available = () => inView && !document.hidden && !reduced.matches && !disposed;
 
-  const baseRadius = () => Math.min(148, Math.max(90, width * 0.26));
-  const stop = () => {
+  function stop() {
     cancelAnimationFrame(frame);
     frame = 0;
-    lastTime = 0;
-  };
+    previousTime = 0;
+  }
 
-  function paint() {
-    if (!context || !ready) return;
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    context.clearRect(0, 0, width, height);
-    if (full) {
-      context.drawImage(field, 0, 0, width, height);
-      return;
+  function reset() {
+    stop();
+    inside = touchDown = false;
+    strength = targetStrength = velocityX = velocityY = 0;
+    if (gl && ready) gl.clear(gl.COLOR_BUFFER_BIT);
+  }
+
+  function releaseResources() {
+    if (!gl) return;
+    if (texture) gl.deleteTexture(texture);
+    if (buffer) gl.deleteBuffer(buffer);
+    if (program) gl.deleteProgram(program);
+    texture = buffer = program = null;
+    ready = false;
+  }
+
+  function fallback() {
+    reset();
+    releaseResources();
+    failed = true;
+    canvas.hidden = true;
+    figure.classList.remove('portrait-webgl-ready');
+  }
+
+  function initialize(): boolean {
+    if (gl && program) return true;
+    if (failed || !available()) return false;
+    try {
+      gl = gl || canvas.getContext('webgl', {
+        alpha: true,
+        antialias: false,
+        depth: false,
+        stencil: false,
+        premultipliedAlpha: false,
+        preserveDrawingBuffer: false,
+        powerPreference: 'low-power',
+      });
+      if (!gl || gl.isContextLost()) return false;
+      const compile = (type: number, source: string) => {
+        const shader = gl!.createShader(type);
+        if (!shader) throw new Error('Portrait shader unavailable');
+        gl!.shaderSource(shader, source);
+        gl!.compileShader(shader);
+        if (!gl!.getShaderParameter(shader, gl!.COMPILE_STATUS)) {
+          gl!.deleteShader(shader);
+          throw new Error('Portrait shader compilation failed');
+        }
+        return shader;
+      };
+      const vertex = compile(gl.VERTEX_SHADER, vertexSource);
+      let fragment: WebGLShader;
+      try {
+        fragment = compile(gl.FRAGMENT_SHADER, fragmentSource);
+      } catch (error) {
+        gl.deleteShader(vertex);
+        throw error;
+      }
+      program = gl.createProgram();
+      if (!program) throw new Error('Portrait program unavailable');
+      gl.attachShader(program, vertex);
+      gl.attachShader(program, fragment);
+      gl.linkProgram(program);
+      gl.deleteShader(vertex);
+      gl.deleteShader(fragment);
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error('Portrait program link failed');
+      gl.useProgram(program);
+      buffer = gl.createBuffer();
+      texture = gl.createTexture();
+      if (!buffer || !texture) throw new Error('Portrait memory unavailable');
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+      const position = gl.getAttribLocation(program, 'aPosition');
+      gl.enableVertexAttribArray(position);
+      gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      uniforms = Object.fromEntries(['uPhoto', 'uResolution', 'uPointer', 'uVelocity', 'uCrop', 'uStrength'].map(name => [name, gl!.getUniformLocation(program!, name)]));
+      gl.uniform1i(uniforms.uPhoto, 0);
+      gl.clearColor(0, 0, 0, 0);
+      return true;
+    } catch {
+      fallback();
+      return false;
     }
-    if (radius < 0.5) return;
-    context.drawImage(field, 0, 0, width, height);
-    context.globalCompositeOperation = 'destination-in';
-    const feather = Math.min(28, radius * 0.25);
-    const mask = context.createRadialGradient(x, y, Math.max(0, radius - feather), x, y, radius);
-    mask.addColorStop(0, '#000');
-    mask.addColorStop(1, 'transparent');
-    context.fillStyle = mask;
-    context.fillRect(0, 0, width, height);
-    context.globalCompositeOperation = 'source-over';
+  }
+
+  function draw() {
+    if (!gl || !ready || !available()) return;
+    gl.uniform2f(uniforms.uPointer, x, y);
+    gl.uniform2f(uniforms.uVelocity, velocityX, velocityY);
+    gl.uniform1f(uniforms.uStrength, strength);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 
   function animate(time: number) {
     frame = 0;
-    if (disposed || !visible || !ready) return;
-    const elapsed = lastTime ? Math.min(50, time - lastTime) : 16.67;
-    lastTime = time;
-    const ease = 1 - Math.pow(0.79, elapsed / 16.67);
+    if (!ready || !available()) return;
+    const elapsed = previousTime ? Math.min(50, time - previousTime) : 16.67;
+    previousTime = time;
+    const ease = 1 - Math.exp(-elapsed / 86);
     x += (targetX - x) * ease;
     y += (targetY - y) * ease;
-    radius += (targetRadius - radius) * ease;
-    paint();
-    const unsettled = Math.abs(x - targetX) + Math.abs(y - targetY) + Math.abs(radius - targetRadius) > 0.2;
-    if (unsettled && !reduced.matches && !full) frame = requestAnimationFrame(animate);
+    strength += (targetStrength - strength) * ease;
+    velocityX *= 1 - ease;
+    velocityY *= 1 - ease;
+    draw();
+    const unsettled = Math.abs(targetX - x) + Math.abs(targetY - y)
+      + Math.abs(targetStrength - strength) + Math.abs(velocityX) + Math.abs(velocityY) > 0.001;
+    if (unsettled) frame = requestAnimationFrame(animate);
     else {
       x = targetX;
       y = targetY;
-      radius = targetRadius;
-      lastTime = 0;
-      paint();
+      strength = targetStrength;
+      velocityX = velocityY = previousTime = 0;
+      draw();
     }
   }
 
-  function update() {
-    if (!ready || disposed || !visible) return;
-    if (full || reduced.matches) {
-      stop();
-      radius = targetRadius;
-      x = targetX;
-      y = targetY;
-      paint();
-    } else if (!frame) frame = requestAnimationFrame(animate);
+  function requestDraw() {
+    if (ready && available() && !frame) frame = requestAnimationFrame(animate);
   }
 
   function rebuild() {
     resizeFrame = 0;
-    if (disposed || !photo || !photo.complete || !photo.naturalWidth || !fieldContext || !sampleContext) return;
+    if (!available() || !photo || !photo.complete || !photo.naturalWidth) return;
     const bounds = photo.getBoundingClientRect();
-    if (bounds.width < 1 || bounds.height < 1) return;
+    if (bounds.width < 1 || bounds.height < 1 || !initialize() || !gl) return;
     width = bounds.width;
     height = bounds.height;
-    ratio = Math.min(devicePixelRatio || 1, 1.5);
+    const ratio = Math.min(devicePixelRatio || 1, 1.5);
     canvas.style.left = `${photo.offsetLeft}px`;
     canvas.style.top = `${photo.offsetTop}px`;
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
-    canvas.width = field.width = Math.round(width * ratio);
-    canvas.height = field.height = Math.round(height * ratio);
+    canvas.width = Math.round(width * ratio);
+    canvas.height = Math.round(height * ratio);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.uniform2f(uniforms.uResolution, width, height);
 
-    // Match the original photograph's cover crop before sampling luminance.
+    // Use the same object-fit: cover crop and object-position as the DOM image.
     const scale = Math.max(width / photo.naturalWidth, height / photo.naturalHeight);
-    const cropWidth = width / scale;
-    const cropHeight = height / scale;
-    const position = getComputedStyle(photo).objectPosition.split(' ');
-    const positionFraction = (value: string | undefined) => value?.endsWith('%') ? parseFloat(value) / 100 : 0.5;
-    const cropX = (photo.naturalWidth - cropWidth) * positionFraction(position[0]);
-    const cropY = (photo.naturalHeight - cropHeight) * positionFraction(position[1]);
-    const columns = Math.max(36, Math.min(110, Math.floor(width / 6.5)));
-    const cellWidth = width / columns;
-    const cellHeight = cellWidth * 1.5;
-    const rows = Math.ceil(height / cellHeight);
-    sample.width = columns;
-    sample.height = rows;
-
+    const cropWidth = width / scale / photo.naturalWidth;
+    const cropHeight = height / scale / photo.naturalHeight;
+    const positions = getComputedStyle(photo).objectPosition.split(' ');
+    const fraction = (value: string | undefined) => value?.endsWith('%') ? parseFloat(value) / 100 : 0.5;
+    gl.uniform4f(uniforms.uCrop, (1 - cropWidth) * fraction(positions[0]), (1 - cropHeight) * fraction(positions[1]), cropWidth, cropHeight);
     try {
-      sampleContext.drawImage(photo, cropX, cropY, cropWidth, cropHeight, 0, 0, columns, rows);
-      const pixels = sampleContext.getImageData(0, 0, columns, rows).data;
-      fieldContext.setTransform(ratio, 0, 0, ratio, 0, 0);
-      fieldContext.fillStyle = '#131211';
-      fieldContext.fillRect(0, 0, width, height);
-      fieldContext.font = `500 ${cellHeight * 0.95}px ui-monospace, SFMono-Regular, Consolas, monospace`;
-      fieldContext.textAlign = 'center';
-      fieldContext.textBaseline = 'middle';
-      const characters = ' .,:;+=xX#%@';
-      for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < columns; col++) {
-          const pixel = (row * columns + col) * 4;
-          const luminance = (pixels[pixel] * 0.2126 + pixels[pixel + 1] * 0.7152 + pixels[pixel + 2] * 0.0722) / 255;
-          const value = Math.min(1, Math.max(0, (luminance - 0.04) * 1.18));
-          const character = characters[Math.round(Math.pow(value, 0.78) * (characters.length - 1))];
-          // A restrained red accent in midtones keeps the facial highlights clear.
-          fieldContext.fillStyle = value > 0.32 && value < 0.55 && (row + col) % 5 === 0 ? '#ff476c' : value > 0.55 ? '#f2eae3' : '#d0c9c3';
-          fieldContext.fillText(character, (col + 0.5) * cellWidth, (row + 0.5) * cellHeight);
-        }
-      }
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, photo);
       ready = true;
-      button.hidden = false;
-      figure.classList.add('portrait-ascii-ready');
-      if (!inside) {
-        targetX = x = width / 2;
-        targetY = y = height * 0.43;
-      }
-      update();
+      canvas.hidden = false;
+      figure.classList.add('portrait-webgl-ready');
+      draw();
     } catch {
-      // The original photograph remains available if pixel access is unavailable.
-      ready = false;
-      button.hidden = true;
-      figure.classList.remove('portrait-ascii-ready');
-      context?.clearRect(0, 0, canvas.width, canvas.height);
+      // A failed texture upload or cross-origin image leaves the original photo intact.
+      fallback();
     }
   }
 
   function scheduleRebuild() {
-    if (!resizeFrame && !disposed) resizeFrame = requestAnimationFrame(rebuild);
+    if (!resizeFrame && available()) resizeFrame = requestAnimationFrame(rebuild);
   }
 
-  function pointerMove(event: PointerEvent) {
-    if (!photo || !ready || full || reduced.matches || !hover.matches || event.pointerType === 'touch') return;
+  function move(event: PointerEvent) {
+    if (!ready || !available() || !photo || (event.pointerType === 'touch' && !touchDown)) return;
+    if ((event.target as Element | null)?.closest('a, button')) return leave();
     const bounds = photo.getBoundingClientRect();
-    const nextX = event.clientX - bounds.left;
-    const nextY = event.clientY - bounds.top;
-    const overControl = (event.target as Element | null)?.closest('button, a');
-    if (overControl || nextX < 0 || nextY < 0 || nextX > width || nextY > height) {
-      pointerLeave();
-      return;
-    }
-    const elapsed = Math.max(16, event.timeStamp - moveTime);
-    velocity = Math.min(28, Math.hypot(nextX - targetX, nextY - targetY) * 16 / elapsed);
-    moveTime = event.timeStamp;
+    const nextX = (event.clientX - bounds.left) / width;
+    const nextY = (event.clientY - bounds.top) / height;
+    if (nextX < 0 || nextX > 1 || nextY < 0 || nextY > 1) return leave();
+    velocityX = Math.max(-0.4, Math.min(0.4, (nextX - targetX) * 5));
+    velocityY = Math.max(-0.4, Math.min(0.4, (nextY - targetY) * 5));
     targetX = nextX;
     targetY = nextY;
     if (!inside) {
       x = targetX;
       y = targetY;
-      inside = true;
-      velocity = 0;
+      velocityX = velocityY = 0;
     }
-    targetRadius = baseRadius() + velocity * 0.6;
-    update();
+    inside = true;
+    targetStrength = 1;
+    requestDraw();
   }
 
-  function pointerLeave() {
-    inside = false;
-    targetRadius = 0;
-    velocity = 0;
-    update();
+  function down(event: PointerEvent) {
+    touchDown = true;
+    move(event);
   }
 
-  function toggle() {
-    full = !full;
-    button.setAttribute('aria-pressed', String(full));
-    label.textContent = full ? 'Ver fotografía' : 'Ver retrato ASCII';
-    icon.textContent = full ? 'image' : 'grid_view';
-    figure.classList.toggle('portrait-ascii-full', full);
-    targetRadius = radius = 0;
-    inside = false;
-    update();
+  function leave() {
+    inside = touchDown = false;
+    targetStrength = 0;
+    requestDraw();
+  }
+
+  function up(event: PointerEvent) {
+    if (event.pointerType === 'touch' || event.pointerType === 'pen') leave();
   }
 
   function motionChange() {
-    stop();
-    inside = false;
-    targetRadius = radius = 0;
-    update();
+    reset();
+    canvas.hidden = reduced.matches || !ready;
+    if (!reduced.matches) scheduleRebuild();
   }
 
   function visibilityChange() {
-    visible = !document.hidden;
-    if (!visible) {
-      stop();
-      inside = false;
-      targetRadius = radius = 0;
-    } else update();
+    if (document.hidden) reset();
+    else scheduleRebuild();
   }
 
-  figure.addEventListener('pointerenter', pointerMove);
-  figure.addEventListener('pointermove', pointerMove);
-  figure.addEventListener('pointerleave', pointerLeave);
-  button.addEventListener('click', toggle);
+  function contextLost(event: Event) {
+    event.preventDefault();
+    reset();
+    ready = false;
+    canvas.hidden = true;
+    figure.classList.remove('portrait-webgl-ready');
+  }
+
+  function contextRestored() {
+    program = buffer = texture = null;
+    failed = false;
+    scheduleRebuild();
+  }
+
+  const resizeObserver = new ResizeObserver(scheduleRebuild);
+  const intersectionObserver = new IntersectionObserver(entries => {
+    inView = entries[0]?.isIntersecting ?? false;
+    if (inView) scheduleRebuild();
+    else reset();
+  });
+  resizeObserver.observe(photo);
+  intersectionObserver.observe(photo);
+  figure.addEventListener('pointerenter', move, { passive: true });
+  figure.addEventListener('pointermove', move, { passive: true });
+  figure.addEventListener('pointerdown', down, { passive: true });
+  figure.addEventListener('pointerup', up, { passive: true });
+  figure.addEventListener('pointerleave', leave, { passive: true });
+  figure.addEventListener('pointercancel', leave, { passive: true });
   reduced.addEventListener('change', motionChange);
-  hover.addEventListener('change', motionChange);
   document.addEventListener('visibilitychange', visibilityChange);
   photo.addEventListener('load', scheduleRebuild);
-  const observer = new ResizeObserver(scheduleRebuild);
-  observer.observe(photo);
-  // decode() safely handles cached images as well as the lazy-loaded portrait.
+  canvas.addEventListener('webglcontextlost', contextLost);
+  canvas.addEventListener('webglcontextrestored', contextRestored);
   void photo.decode().then(scheduleRebuild).catch(() => {
     if (photo.complete && photo.naturalWidth) scheduleRebuild();
   });
@@ -261,18 +356,23 @@ export function setupPortrait(figure: HTMLElement, reduced: MediaQueryList): { d
       disposed = true;
       stop();
       cancelAnimationFrame(resizeFrame);
-      observer.disconnect();
-      figure.removeEventListener('pointerenter', pointerMove);
-      figure.removeEventListener('pointermove', pointerMove);
-      figure.removeEventListener('pointerleave', pointerLeave);
-      button.removeEventListener('click', toggle);
+      resizeObserver.disconnect();
+      intersectionObserver.disconnect();
+      figure.removeEventListener('pointerenter', move);
+      figure.removeEventListener('pointermove', move);
+      figure.removeEventListener('pointerdown', down);
+      figure.removeEventListener('pointerup', up);
+      figure.removeEventListener('pointerleave', leave);
+      figure.removeEventListener('pointercancel', leave);
       reduced.removeEventListener('change', motionChange);
-      hover.removeEventListener('change', motionChange);
       document.removeEventListener('visibilitychange', visibilityChange);
       photo.removeEventListener('load', scheduleRebuild);
-      figure.classList.remove('portrait-ascii-ready', 'portrait-ascii-full');
+      canvas.removeEventListener('webglcontextlost', contextLost);
+      canvas.removeEventListener('webglcontextrestored', contextRestored);
+      releaseResources();
+      gl?.getExtension('WEBGL_lose_context')?.loseContext();
+      figure.classList.remove('portrait-webgl-ready');
       canvas.remove();
-      button.remove();
     },
   };
 }

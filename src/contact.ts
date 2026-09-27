@@ -10,7 +10,7 @@ export function setupContact(form: HTMLFormElement) {
   const ready = Boolean(contactConfig.accessKey.trim());
   submit.disabled = !ready;
   label.textContent = ready ? 'Enviar mensaje' : 'Envío disponible pronto';
-  status.textContent = ready ? '' : 'El formulario todavía no recibe mensajes. Puedes explorar mi perfil en GitHub mientras habilito este canal.';
+  status.textContent = ready ? '' : 'El formulario aún no está habilitado. Puedes escribirme directamente por correo.';
   let sending = false;
   for (const input of [nameInput, messageInput]) {
     input.addEventListener('input', () => input.setCustomValidity(''));

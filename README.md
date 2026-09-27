@@ -1,6 +1,8 @@
-# Alexis Flores — Portafolio v3
+# Félix Alexis Flores Rojas — Portafolio v4
 
-Portafolio estático para GitHub Pages, con una escena original de Blender, Three.js, GSAP y Lenis. La tercera versión incorpora trayectoria profesional, CV descargable, proyectos publicados, retrato ASCII y un formulario preparado para Web3Forms.
+Portafolio profesional de **Alexis Flores**, diseñador UX/UI y desarrollador front-end. Sitio estático para GitHub Pages con una escena original de Blender, Three.js, GSAP, SplitText y Lenis. Presenta competencias, trayectoria, proyectos web y un CV descargable.
+
+[Portafolio público](https://alexis01001415-oss.github.io/alexis-flores-portfolio/) · [Repositorio](https://github.com/alexis01001415-oss/alexis-flores-portfolio)
 
 ## Desarrollo
 
@@ -11,45 +13,62 @@ npm run build
 npm run preview
 ```
 
-Node.js 22 o posterior. La compilación incluye TypeScript, Vite, metadatos, datos estructurados, sitemap y página 404. `SITE_URL` permite establecer la URL pública de GitHub Pages; el workflow la calcula desde el repositorio.
+Node.js 22 o posterior. La compilación valida TypeScript, genera los archivos de Vite y añade metadatos, datos estructurados, sitemap, robots y página 404. `SITE_URL` permite establecer la URL de GitHub Pages; el workflow la calcula desde el repositorio.
 
 ## Diseño e interacción
 
-La paleta proporcionada por Alexis combina marfil `#F2EAE3`, gris cálido `#D0C9C3`, rojo `#FF073A`, carbón `#131211` y negro `#000000`. Los botones primarios usan la variante roja `#C90030` con texto marfil `#F2EAE3`: su contraste calculado es aproximadamente **5.01:1**. Yantramanav es la tipografía y los iconos pertenecen a Google Material Symbols.
+La paleta combina marfil `#F2EAE3`, gris cálido `#D0C9C3`, rojo `#FF073A`, carbón `#131211` y negro. Los botones primarios usan `#C90030` con texto marfil, con contraste aproximado de **5.01:1**. La tipografía es Yantramanav; los iconos son Google Material Symbols alojados localmente.
 
-El header permanece fijo y visible, con navegación al perfil, CV, proyectos y contacto. La interfaz utiliza modo oscuro; el menú móvil y el desplegable de proyectos dan acceso a las mismas secciones. El movimiento se adapta a `prefers-reduced-motion` del sistema.
+- **Navegación lateral:** cabecera fija a la izquierda en escritorio y barra superior en móvil. El menú ampliado contiene perfil, CV, desplegable de proyectos y contacto. Incluye cierre con Escape, devolución del foco y navegación con teclado.
+- **Preloader:** entrada del monograma `af.` y salida mediante cinco franjas animadas. Espera a las fuentes y a la preparación de la escena; contempla una entrada mínima de 1.9 segundos y un límite de carga de 12 segundos. No muestra porcentajes simulados ni exige pulsar un botón.
+- **Recorrido inicial:** la laptop de Blender se abre, los objetos del escritorio se separan y la composición cambia de lado con el scroll. Los capítulos describen UX/UI, desarrollo web y productos digitales.
+- **Texto y transiciones:** GSAP SplitText revela líneas de títulos; ScrollTrigger coordina las franjas entre secciones y el trazado de la trayectoria. Lenis suaviza el desplazamiento.
+- **Trayectoria:** una curva ancha conecta fechas y fichas de experiencia. Años y tarjetas tienen movimientos vinculados al scroll; en móvil la lectura se organiza en una columna.
+- **Galería de proyectos:** en escritorio amplio, el desplazamiento vertical recorre tres proyectos horizontalmente. La misma laptop de Blender muestra capturas de cada sitio en su pantalla. Los botones numerados y el menú permiten seleccionar el proyecto. En pantallas pequeñas o con movimiento reducido se usa una lista vertical con imágenes.
+- **Contacto:** correo directo, formulario preparado para Web3Forms y cierre con la laptop 3D. El modo oscuro es la presentación principal; perfil y trayectoria usan un fondo marfil.
 
-El recorrido 3D abre la laptop, separa los objetos del escritorio y alterna el modelo y el texto a ambos lados de la pantalla. Lenis y GSAP ScrollTrigger coordinan el desplazamiento. El preloader comunica la preparación de la experiencia y permite entrar sin esperar. Perfil, trayectoria, casos, proceso y contacto continúan en HTML semántico.
+### Máscara fotográfica WebGL
 
-### Retrato ASCII
+`src/portrait.ts` y `src/portrait.css` añaden una lente orgánica sobre la fotografía: revela color y aplica una refracción local suave al mover el cursor. Es un shader WebGL nativo, sin dependencia adicional. No contiene caracteres ASCII ni botones para alternar modos.
 
-`src/portrait.ts` y `src/portrait.css` generan una versión del retrato con caracteres en Canvas 2D. La imagen de caracteres se calcula al cargar o cambiar de tamaño y queda en caché; al mover el cursor se actualiza una máscara suave, sin reconstruir todos los caracteres en cada fotograma.
+La fotografía HTML permanece debajo del canvas decorativo y conserva su texto alternativo. El efecto responde al contacto táctil sin impedir el scroll. Limita el DPR a 1.5, solo anima durante interacción y amortiguación, se detiene fuera de pantalla o con la pestaña oculta y deja la imagen estática con `prefers-reduced-motion`. Si WebGL o la textura fallan, permanece la fotografía original.
 
-El botón **Ver retrato ASCII** permite alternar la imagen completa con teclado o pantalla táctil. La foto original permanece disponible si Canvas falla. La implementación respeta movimiento reducido, limita la resolución y detiene la animación cuando la pestaña está oculta. El retrato actual sigue siendo una fotografía de stock, identificada en la interfaz.
+El retrato actual sigue siendo una foto de stock, identificada en la página. Para sustituirlo, cambiar `public/images/portrait.webp`, su texto alternativo y el crédito en `index.html`.
 
-## Perfil y casos publicados
+## Información profesional
 
-La información profesional confirmada está en `index.html` y en el generador del CV:
+El contenido se basa en el CV anterior proporcionado por Alexis y en sus indicaciones posteriores. Su nombre completo es **Félix Alexis Flores Rojas**. El documento confirma **Grupo Invictus**, corrigiendo la transcripción anterior del nombre de la empresa.
 
-- **T-Line México, 2023–2026:** profesional de UX/UI y desarrollador front-end.
-- **Grupo Victus, anteriormente:** diseñador web y diseñador UX/UI. No se asignan fechas sin confirmar.
-- **Competencias:** UX/UI, diseño web, prototipado, diseño responsive, HTML, CSS, JavaScript, GitHub, WordPress, Framer, Webflow, Blender, componentes interactivos, animación web y desarrollo asistido por IA.
-
-Las fichas muestran capturas reales y enlaces a tres sitios publicados:
-
-| Caso | Sitio | Captura local |
+| Empresa | Periodo | Puesto |
 | --- | --- | --- |
-| Curiosity Marketplace | https://marketplace.curiositycloud.com/ | `public/images/cases/curiosity.webp` |
-| Macloud Seguridad Privada | https://seguridadmacloud.com.mx/ | `public/images/cases/macloud.webp` |
-| Gatical Seguridad Privada | https://gaticalseguridadprivada.framer.website/ | `public/images/cases/gatical.webp` |
+| T-Line México | 2023–2026 | Profesional de UX/UI y desarrollador front-end |
+| Grupo Invictus | Marzo de 2023–abril de 2024 | Diseñador web y diseñador UX/UI |
+| Fundación ADO | Junio de 2022–marzo de 2023 | Diseñador gráfico |
+| Mobility ADO | Noviembre de 2019–noviembre de 2020 | Auxiliar administrativo |
 
-**Asesoría y Gestoría Gómez** permanece pendiente de documentación: el enlace proporcionado, `https://empathic-signposts-791765.framer.app/`, devolvió HTTP 404 durante la revisión. No se ha reconstruido ni supuesto su contenido.
+La trayectoria de la web destaca los tres puestos de diseño; el PDF incluye también Mobility ADO. Las fechas de T-Line siguen la actualización expresada por Alexis. Se conservan los periodos indicados por las fuentes, aunque se superpongan.
 
-Los contextos y retos de las fichas son lecturas de los sitios publicados. Todavía falta documentar el papel de Alexis, sus contribuciones concretas, el equipo y los resultados de cada proyecto. No se atribuyen proyectos a una empresa de su trayectoria ni se inventan métricas o responsabilidades.
+**Formación:** Diseño Gráfico y Animación Digital en la Universidad Autónoma de Tamaulipas, 2021–2024; certificación profesional de Diseño UX de Google / Coursera, 2022–2023. El PDF incluye también cursos de Udemy y Platzi documentados en el CV.
+
+Las funciones descritas incluyen sitios responsive en WordPress, HTML/CSS/JavaScript, prototipos y flujos en Figma, pruebas de usabilidad, interfaces para Odoo, dashboards, SEO, accesibilidad y comunicación visual. Las competencias reúnen lo documentado y las herramientas confirmadas por Alexis: Figma, FigJam, Miro, Maze, GitHub, WordPress, Elementor, Framer, Webflow, Shopify, Odoo, Blender, Adobe, Rive, Lottie y desarrollo asistido por IA.
+
+## Proyectos publicados
+
+La selección muestra capturas reales y enlaces a los sitios:
+
+| Proyecto | Sitio | Captura |
+| --- | --- | --- |
+| Curiosity Marketplace | [marketplace.curiositycloud.com](https://marketplace.curiositycloud.com/) | `public/images/cases/curiosity.webp` |
+| Macloud Seguridad Privada | [seguridadmacloud.com.mx](https://seguridadmacloud.com.mx/) | `public/images/cases/macloud.webp` |
+| Gatical Seguridad Privada | [gaticalseguridadprivada.framer.website](https://gaticalseguridadprivada.framer.website/) | `public/images/cases/gatical.webp` |
+
+Las descripciones explican el contenido visible de los sitios y su reto de diseño. La contribución individual, el equipo y los resultados de cada proyecto necesitan documentación adicional; no se atribuyen métricas ni responsabilidades concretas sin confirmar.
+
+**Asesoría y Gestoría Gómez** figura como caso en preparación. El enlace recibido devolvió HTTP 404 durante la revisión anterior; no se ha supuesto su contenido.
 
 ## CV descargable
 
-El PDF de una página está en `public/documents/Alexis-Flores-CV.pdf`. Se genera con `scripts/create_cv.py` a partir de la información confirmada y la tipografía Yantramanav instalada por npm.
+El PDF A4 de una página está en `public/documents/Alexis-Flores-CV.pdf`. Incluye nombre completo, contacto, experiencia, formación, competencias y enlaces profesionales. Usa texto seleccionable y una columna de lectura.
 
 ```sh
 npm ci
@@ -57,66 +76,71 @@ python -m pip install reportlab fonttools brotli
 python scripts/create_cv.py
 ```
 
-El generador crea `output/pdf/Alexis-Flores-CV.pdf` y copia el mismo archivo a `public/documents/`. Usa texto real y enlaces, con una columna de lectura. Al actualizar la trayectoria o las competencias, mantener sincronizados `index.html` y `scripts/create_cv.py`, y regenerar el PDF.
+El generador `scripts/create_cv.py` utiliza Yantramanav desde la dependencia de npm. Crea `output/pdf/Alexis-Flores-CV.pdf` y una copia idéntica en `public/documents/`. Al modificar la trayectoria, mantener sincronizados el generador y `index.html`, regenerar el PDF y revisar su render antes de publicar. El CV fuente permanece fuera del repositorio.
 
-## Configurar el formulario de contacto
+## Contacto y Web3Forms
 
-La configuración está en `src/contact.ts`:
+El correo directo es **alexisfr.14@outlook.com**. El formulario tiene nombre, correo, empresa opcional, motivo y mensaje. Su configuración está en `src/contact.ts`:
 
 ```ts
 export const contactConfig = { accessKey: '' };
 ```
 
-La clave está vacía. En este estado, el botón de envío está deshabilitado y el formulario informa que aún no recibe mensajes; GitHub queda disponible como alternativa. No se han enviado mensajes de prueba a destinatarios reales.
+**Pendiente: la access key de Web3Forms.** Mientras esté vacía, el envío permanece deshabilitado y el usuario puede escribir por correo. No se han enviado mensajes de prueba a destinatarios reales.
 
-Para habilitarlo, obtener la **access key pública** de Web3Forms vinculada al correo del propietario y colocarla en `contactConfig.accessKey`. Es el identificador que Web3Forms utiliza en formularios del navegador; no debe sustituirse por una credencial privada de otro servicio. Compilar y publicar después del cambio. La [documentación oficial de HTML y JavaScript de Web3Forms](https://docs.web3forms.com/how-to-guides/html-and-javascript) describe este mecanismo.
+Para activarlo, colocar la clave pública de Web3Forms vinculada al correo del propietario, compilar y publicar. La clave identifica el formulario del navegador; no debe sustituirse por una credencial privada de otro servicio. Véase la [documentación oficial de Web3Forms](https://docs.web3forms.com/how-to-guides/html-and-javascript).
 
-El controlador envía JSON mediante `fetch` a `https://api.web3forms.com/submit`; ese origen está permitido en `connect-src` de la CSP. Incluye validación nativa y de contenido vacío, límites de los campos, un honeypot, bloqueo de envíos simultáneos, estados accesibles y cancelación con `AbortController` tras 15 segundos. Solo limpia los campos cuando la API confirma éxito. Ante errores HTTP, rechazo de la API, respuesta inválida o fallo de red, conserva los datos para reintentar.
+El controlador usa `fetch` con JSON a `https://api.web3forms.com/submit`, permitido en la CSP. Incluye validación nativa, control de campos vacíos, límites de longitud, honeypot, bloqueo de envíos simultáneos, mensajes accesibles y timeout de 15 segundos. Conserva los campos ante fallos y los limpia solo después de una confirmación de éxito de la API. Una vez configurado, los datos se transmiten a Web3Forms para entregar el mensaje; GitHub Pages continúa sirviendo un sitio estático.
 
-Una vez habilitado, los datos introducidos se transmiten a Web3Forms para entregar el mensaje. GitHub Pages sigue sirviendo un sitio estático, sin backend propio.
+## Blender, Three.js e iluminación
 
-## Modelo de Blender e iluminación
+Fuentes: `assets-source/v2/workstation-v2.blend` y `assets-source/v2/create_workstation.py`. Modelo publicado: `public/models/workstation-v2.glb`. Póster: `public/images/workstation-v2.webp`. El estudio contiene laptop articulada, teclado, trackpad, rejillas, puertos, escritorio, café, libreta, bolígrafo y objeto acrílico rojo.
 
-Las fuentes están en `assets-source/v2/workstation-v2.blend` y `assets-source/v2/create_workstation.py`. La escena publicada es `public/models/workstation-v2.glb`; el póster es `public/images/workstation-v2.webp`. El modelo incluye laptop articulada, teclado, trackpad, rejillas, puertos, materiales de aluminio, escritorio, café, libreta, bolígrafo y un objeto acrílico rojo.
+El GLB pesa aproximadamente 1.49 MB y contiene 47 meshes y 36,894 triángulos, con texturas de color y rugosidad empaquetadas. Se carga directamente, sin decodificador Draco. El póster procede de un render de Blender y queda disponible si la escena no carga. Las fuentes editables permanecen fuera de `dist/`.
 
-Las texturas de color y rugosidad están empaquetadas en el GLB, de aproximadamente 1.49 MB, con 47 meshes y 36,894 triángulos. El póster WebP procede de un render de Blender y muestra la composición cuando WebGL no está disponible. El GLB se carga directamente, sin un decodificador Draco adicional. Las fuentes editables, scripts y texturas se conservan en el repositorio y quedan fuera de `dist/`.
+Un único renderer de Three.js se desplaza entre el recorrido inicial, la galería y el footer. La galería carga las capturas cuando se necesitan y las usa como textura de la pantalla. Los capítulos iniciales utilizan composiciones originales en `CanvasTexture`; no descargan videos.
 
-Los reflejos se precalculan desde `RoomEnvironment` de Three.js mediante PMREM de tamaño 128. El atlas mide 384 × 512 píxeles y contiene RGBA Float16 en orden little endian, comprimido con gzip: `public/models/studio-environment.pmrem` ocupa 265,087 bytes. La web lo carga con `fetch` y `DecompressionStream`, y lo aplica como `DataTexture` con `CubeUVReflectionMapping`, evitando generar PMREM al entrar.
+Los reflejos proceden de un entorno PMREM precalculado de Three.js: `public/models/studio-environment.pmrem`, 265,087 bytes comprimidos con gzip. El atlas mide 384 × 512 píxeles, RGBA Float16 little endian. La web lo carga mediante `DecompressionStream` y `DataTexture`, evitando generar PMREM al entrar.
 
-Para regenerarlo, iniciar `npm run dev`, abrir `/scripts/bake-environment.html`, generar y descargar la iluminación, y reemplazar el archivo en `public/models/`. El generador no se publica en `dist/`. Las instrucciones de reconstrucción, materiales y coordenadas están en `assets-source/v2/README.md`.
+Para regenerar el entorno, iniciar Vite, abrir `/scripts/bake-environment.html` y descargar el atlas generado. Más detalles de materiales y reconstrucción en `assets-source/v2/README.md`.
 
-La pantalla de la laptop cambia con los capítulos: alterna la imagen incluida en el GLB con composiciones originales de `CanvasTexture`. No requiere descargar videos.
-
-## Verificación y accesibilidad
+## Verificación
 
 ```sh
+npm run build
 node scripts/test-contact.mjs
+npm audit --omit=dev
 ```
 
-Las pruebas del controlador de contacto cubren **12 escenarios** y pasaron en esta revisión. Usan dobles locales de DOM y red: no envían mensajes. Verifican configuración vacía, validación, honeypot, éxito, fallos, solicitudes simultáneas y cancelación.
+Las pruebas de contacto usan DOM y red simulados; no envían mensajes. `QA.md` registra la revisión visual y las mediciones de la compilación correspondiente. Los resultados de versiones previas no describen automáticamente esta versión.
 
-El contenido usa navegación con teclado, anclas, foco visible, etiquetas de campos y estados de formulario. La alternativa estática conserva el contenido y el póster; los canvas son decorativos. Los controles con desplazamiento propio usan `data-lenis-prevent`.
-
-`QA.md` recoge las revisiones manuales y mediciones de producción. Las cifras de versiones anteriores no describen automáticamente v3: las mediciones nuevas deben corresponder a la compilación publicada. La revisión automática no equivale a una certificación WCAG.
+Revisar especialmente menú y foco, navegación a cada proyecto, galerías en tamaños pequeños, contraste, preferencia de movimiento reducido, fallos del modelo, PDF y estados del formulario. Los canvas son decorativos y el contenido profesional permanece en HTML. Las auditorías automáticas no equivalen a una certificación WCAG.
 
 ## SEO y seguridad
 
-HTML semántico en español, título y descripción, canonical, Open Graph, schema.org Person/ProfilePage/WebSite, sitemap y robots. Esta estructura facilita la lectura por buscadores y asistentes, sin garantizar posiciones ni menciones.
+HTML semántico en español, título y descripción profesionales, canonical, Open Graph, schema.org Person/ProfilePage/WebSite, sitemap y robots. Facilitan la interpretación por buscadores y asistentes; no garantizan posiciones ni menciones.
 
-HTTPS de GitHub Pages, fuentes y medios locales, Content Security Policy, sin evaluaciones dinámicas ni HTML construido desde entradas del usuario, permisos mínimos del workflow y lockfile. La excepción de red externa es el envío configurado a Web3Forms. GitHub Pages no permite personalizar encabezados HTTP como `frame-ancestors`; una CSP de tipo meta no sustituye esos encabezados. La protección de la cuenta y el repositorio depende también de su configuración de acceso.
+GitHub Pages sirve HTTPS. Las fuentes y medios se alojan localmente, se utiliza Content Security Policy y no se construye HTML desde entradas del usuario. El workflow tiene permisos acotados y las dependencias cuentan con lockfile. El formulario configurado utiliza Web3Forms como servicio externo. Una CSP en meta no puede sustituir encabezados HTTP como `frame-ancestors`; la seguridad de la cuenta y el repositorio depende también de sus controles de acceso.
 
-## Fuentes y derechos
+## Referencias y derechos
+
+Referencias consultadas para composición, navegación y movimiento:
+
+- [MindMarket](https://mindmarket.com/) y su [ficha en Awwwards](https://www.awwwards.com/sites/mindmarket): ritmo de la trayectoria y curvas vinculadas al scroll.
+- [Ivor J](https://www.ivorjian.com/) y su [ficha en CSS Design Awards](https://www.cssdesignawards.com/sites/ivor-j-designer-developer/47762/): presentación de un perfil de diseño y desarrollo.
+- [Dennis Snellenberg](https://dennissnellenberg.com/) y su [ficha en Awwwards](https://www.awwwards.com/sites/dennis-snellenberg): tipografía, navegación y exposición de proyectos.
+- Repositorios consultados con licencia MIT: [kbtale/portfolio](https://github.com/kbtale/portfolio/blob/main/LICENSE), [Codrops OnScrollLayoutFormations](https://github.com/codrops/OnScrollLayoutFormations/blob/main/LICENSE) y [Codrops ScrollBasedLayoutAnimations](https://github.com/codrops/ScrollBasedLayoutAnimations/blob/main/LICENSE).
+
+Estas referencias orientan decisiones visuales. **No se ha copiado su código, contenido ni modelos.** Su publicación pública no concede por sí sola permiso para reutilizar cualquier recurso incluido.
+
+Referencias iniciales: [Vizcom](https://vizcom.com/), [SKF](https://www.skf.com/group/fighting-friction/01), [Dropbox × McLaren](https://dash.dropbox.com/mclarenf1), [Ponpon Mania](https://ponpon-mania.com/about#support), [Oryzo](https://oryzo.ai/) y [BreachBunny](https://www.breachbunny.com/).
 
 - Yantramanav: Google Fonts / SIL Open Font License, distribuida con `@fontsource/yantramanav`.
-- Material Symbols Rounded: Google / Apache 2.0. Subconjunto alojado localmente.
+- Material Symbols Rounded: Google / Apache 2.0; subconjunto local.
 - Fotografía provisional: [Joseph Gonzalez / Unsplash](https://unsplash.com/es/fotos/hombre-con-camisa-blanca-con-cuello-en-v-iFgRcqHznqg), [licencia](https://unsplash.com/es/licencia).
-- Escena de Blender, texturas del estudio y composiciones de la pantalla de la laptop: creadas para este portafolio.
-- Capturas en `public/images/cases/`: reproducciones de los sitios enlazados en la tabla de casos. Las marcas, imágenes, contenido y diseños mostrados conservan los derechos de sus respectivos titulares; no se presentan como recursos originales de este repositorio ni se les asigna una licencia nueva.
-
-Inspiración visual: [Vizcom](https://vizcom.com/), [SKF](https://www.skf.com/group/fighting-friction/01), [Dropbox × McLaren](https://dash.dropbox.com/mclarenf1), [Ponpon Mania](https://ponpon-mania.com/about#support), [Oryzo](https://oryzo.ai/) y [BreachBunny](https://www.breachbunny.com/). No se reutilizó su código ni sus modelos.
+- Escena Blender, texturas del estudio, shader del retrato y composiciones de pantalla: creados para este portafolio.
+- Las capturas de los proyectos reproducen los sitios enlazados. Sus marcas, imágenes, diseños y contenido conservan los derechos de sus titulares; no se les asigna una licencia nueva.
 
 ## Publicación
 
-En GitHub → Settings → Pages, seleccionar **GitHub Actions**. El workflow `.github/workflows/pages.yml` publica `dist/` con cada cambio en `main`. Las rutas relativas permiten desplegar dentro del subdirectorio del repositorio.
-
-[Portafolio público](https://alexis01001415-oss.github.io/alexis-flores-portfolio/) · [Repositorio](https://github.com/alexis01001415-oss/alexis-flores-portfolio)
+En GitHub → Settings → Pages, seleccionar **GitHub Actions**. `.github/workflows/pages.yml` publica `dist/` al recibir cambios en `main`. Las rutas relativas permiten alojar la web dentro del subdirectorio del repositorio.

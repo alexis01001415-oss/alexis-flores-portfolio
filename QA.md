@@ -1,44 +1,56 @@
-# Verificación — tercera versión
+# Verificación — cuarta versión
 
-26 de septiembre de 2026. Compilación Vite local en Chromium, con la escena de Blender conservada.
+26 de septiembre de 2026. Vite + TypeScript, GSAP, Lenis y escena original de Blender.
 
-## Verificaciones realizadas
+## Contenido y archivos
 
-- `npm run build`: TypeScript, Vite y metadatos correctos. Vite avisa del tamaño del módulo Three.js cargado dinámicamente; no es un error de compilación.
-- `node scripts/test-contact.mjs`: 12 escenarios funcionales, con peticiones simuladas. Sin clave no se envía nada. Cubre validación, espacios vacíos, honeypot, éxito, errores HTTP/API/JSON/red, doble envío y timeout. Los errores conservan el texto y permiten reintentar.
-- `npm audit --omit=dev`: cero vulnerabilidades en dependencias de producción.
-- `git diff --check`: correcto.
-- Header fijo y visible al avanzar y retroceder. Controles de pausa y cambio de tema retirados.
-- Dropdown de proyectos, navegación a casos, menú móvil expandible y panel desplazable en una pantalla de 320 × 568.
-- Diálogo abierto desde el dropdown: Escape cierra y devuelve el foco al botón Proyectos.
-- Trayectoria en papel marfil, columna sticky en escritorio y curva animada. Lectura vertical en móvil.
-- Retrato: máscara ASCII visible bajo el cursor, con la imagen original detrás. Botón para teclado/pantalla táctil. El Canvas 2D reutiliza los caracteres calculados.
-- Casos: capturas de sitios reales, acordeón con contexto y reto; apertura actualiza ScrollTrigger. La contribución personal todavía requiere documentación.
-- Footer con laptop 3D, campos etiquetados y aviso claro de formulario aún no habilitado. Ningún mensaje de prueba enviado a terceros.
-- CV: botón probado mediante descarga real del navegador. PDF A4 de una página, texto seleccionable, fuentes incrustadas y cinco enlaces. Render inspeccionado, sin cortes ni caracteres fuera de página.
-- Inspección visual en 320 × 568, 390 × 844, 768 × 1024 y 1280 × 720. Sin desbordamiento horizontal del documento en las medidas inspeccionadas.
-- Consola del navegador sin errores en las interacciones revisadas.
+- Copy basado en el CV anterior aportado por Alexis, sin métricas inventadas.
+- Nombre completo: Félix Alexis Flores Rojas. Grupo Invictus confirmado expresamente por Alexis.
+- T-Line México 2023–2026 conserva la fecha indicada por Alexis, que sustituye el intervalo del documento anterior. Grupo Invictus y Fundación ADO usan las fechas del PDF.
+- CV A4 de una página: texto seleccionable, Yantramanav incrustada, seis enlaces activos y render revisado. `output/pdf/Alexis-Flores-CV.pdf` y `public/documents/Alexis-Flores-CV.pdf` son idénticos. El original permanece intacto.
+- Laboratorio, conceptos ficticios, proceso genérico, texto filosófico, controles ASCII y preloader numérico retirados.
+- La foto sigue identificada como stock provisional; el CV de origen no contenía retrato.
 
-La preferencia de movimiento reducido y el fallback de WebGL se conservan. Su lógica fue revisada; la prueba de fallo HTTP 503 del modelo corresponde a la iteración v2. No se ha simulado una tecnología de asistencia real.
+## Funcionalidad revisada
 
-## Lighthouse local
+- Compilación TypeScript/Vite y generación de metadatos correctas. El aviso de tamaño corresponde al módulo Three.js que se carga dinámicamente.
+- Doce pruebas funcionales del formulario con red simulada: validación, éxito, errores, concurrencia, honeypot y timeout. No se envió ningún mensaje externo.
+- `npm audit --omit=dev`: cero vulnerabilidades. `git diff --check`: correcto.
+- Navegación fija lateral en escritorio y superior en móvil, apertura/cierre, desplegable, anclas a trayectoria y proyectos, selección numerada de casos.
+- La galería de escritorio usa un único renderer Three.js y la laptop original de Blender, con capturas distintas en su pantalla. En móvil y tablet conserva las capturas y lectura vertical.
+- Trayectoria: curva gruesa progresiva y fechas con movimiento vinculado al scroll. Tarjetas alternadas en escritorio y apiladas en móvil.
+- Máscara WebGL comprobada visualmente con cursor: revela color y refracción sobre la foto, sin botones. Canvas decorativo y fotografía accesible debajo.
+- Preloader de identidad con letras y salida escalonada, sin porcentajes ni controles para saltarlo. Timeout conserva el contenido si la carga 3D falla.
+- Textos GSAP divididos por líneas al entrar en pantalla. Nombres accesibles completos, sin concatenar palabras separadas por saltos.
+- Contacto con campos etiquetados, envío deshabilitado hasta configurar Web3Forms y alternativa real por email.
+- Inspección en 320×568, 390×844, 768×1024 y 1280×720: sin desbordamiento horizontal del documento en las medidas comprobadas. Se ajustó la cámara móvil para separar modelo y texto.
+- Consola sin errores en las interacciones inspeccionadas.
+
+Movimiento reducido, versión sin JavaScript y recuperación ante pérdida de contexto WebGL revisados en código. No se simuló pérdida de contexto en el navegador ni se hizo una evaluación con lector de pantalla real.
+
+## Lighthouse de producción local
 
 | Categoría | Móvil | Escritorio |
 | --- | ---: | ---: |
-| Rendimiento | 83 | 97 |
+| Rendimiento | 79 | 95 |
 | Accesibilidad | 100 | 100 |
 | Buenas prácticas | 100 | 100 |
 | SEO | 100 | 100 |
-| FCP | 1.8 s | 0.4 s |
-| LCP | 3.0 s | 0.6 s |
-| Bloqueo total | 440 ms | 140 ms |
-| CLS | 0 | 0.005 |
+| FCP | 1.3 s | 0.4 s |
+| LCP | 2.0 s | 0.6 s |
+| Bloqueo total | 760 ms | 160 ms |
+| CLS | 0.001 | 0 |
 
-Las mediciones pertenecen a v3. Después de la medición de escritorio se alinearon las etiquetas accesibles con el texto visible; la auditoría móvil confirmó esa corrección. Después de ambas se corrigieron algunos acentos en mensajes de JavaScript y se desactivó el redondeo de GSAP para que el trazado normalizado del CV avance de forma gradual. Se comprobó visualmente y con valores intermedios de `stroke-dashoffset`. No son datos de visitantes ni una medición continua de FPS. WebGL sigue siendo el principal coste inicial móvil.
+La primera medición móvil fue 70, con 1,030 ms de bloqueo. Diferir SplitText mediante IntersectionObserver redujo el trabajo inicial. WebGL y las animaciones siguen siendo el principal coste móvil; las cifras no son datos de usuarios reales ni garantizan posicionamiento o una certificación WCAG.
 
-Los botones rojos con texto marfil tienen un contraste calculado de 5.01:1. La puntuación automática no equivale a una certificación WCAG ni garantiza posiciones en buscadores.
+Informes en `artifacts/lighthouse-mobile.html` y `artifacts/lighthouse-desktop.html`, excluidos de Git. Se midió tras los cambios de texto, cámara y SplitText; después se añadió recuperación de contexto WebGL sin cambiar la ruta normal de carga. Windows emitió el aviso conocido al liberar el perfil temporal; ambas auditorías terminaron con informes válidos.
 
-Informes completos: `artifacts/lighthouse-mobile.html` y `artifacts/lighthouse-desktop.html`, excluidos de Git. El auditor finalizó correctamente; Windows retuvo temporalmente el perfil de Chrome al liberar archivos.
+## Pendiente de datos del propietario
+
+- Retrato definitivo.
+- Clave pública Web3Forms para habilitar y comprobar la entrega real de mensajes.
+- Aportaciones individuales y resultados verificables por proyecto para ampliar los casos.
+- Enlace vigente de Asesoría y Gestoría Gómez; la dirección anterior devolvía 404 y no se enlaza.
 
 ## Repetir
 
@@ -49,18 +61,9 @@ node scripts/test-contact.mjs
 npm run preview
 ```
 
-En otra terminal, ejecutar por separado:
+En otra terminal, ejecutar las auditorías de forma secuencial:
 
 ```sh
 node scripts/audit.mjs http://127.0.0.1:4173/
 node scripts/audit.mjs http://127.0.0.1:4173/ --desktop
 ```
-
-## Información pendiente
-
-- Clave pública de Web3Forms vinculada al correo de Alexis. El envío real no puede verificarse hasta configurarla.
-- Fechas de Grupo Victus y contribuciones, contexto laboral y resultados de cada proyecto.
-- URL vigente de Asesoría y Gestoría Gómez: el enlace anterior devolvió 404.
-- Retrato definitivo. La fotografía actual continúa identificada como provisional.
-
-T-Line México 2023–2026, ambos puestos, herramientas y nombres de los proyectos provienen de información confirmada por Alexis. No se inventaron empleadores, métricas, estudios ni responsabilidades específicas.

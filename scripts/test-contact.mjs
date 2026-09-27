@@ -80,7 +80,7 @@ try {
   await form.submit();
   assert.equal(requests.length, 0, 'Unconfigured forms must never transmit data');
   assert.equal(form.resetCount, 0);
-  assert.match(form.status.textContent, /todavía no recibe/);
+  assert.match(form.status.textContent, /aún no está habilitado/);
   assert.equal(form.validationCount, 0, 'Unconfigured forms must not show validation errors');
   assert.equal(form.controls.name.validationMessage, '');
   assert.equal(form.controls.message.validationMessage, '');
