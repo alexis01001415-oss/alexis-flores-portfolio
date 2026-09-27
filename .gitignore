@@ -13,3 +13,6 @@ assets-source/v2/*-qa.png
 assets-source/v2/*-render.png
 assets-source/v2/*-preview.png
 assets-source/v2/__pycache__/
+
+tmp/
+output/
