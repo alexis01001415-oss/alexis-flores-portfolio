@@ -213,7 +213,7 @@ def area(name,loc,power,color,size,target,shape='DISK',size_y=None):
 area('Large warm key',(-3,-1.7,5.4),650,(1,.9,.79),5,(0,0,0),'RECTANGLE',3.5)
 area('Long white strip edge',(1.3,3.4,3.4),820,(1,.97,.92),6.0,(0,0,0),'RECTANGLE',.65)
 area('Quiet front fill',(2,-4,2.8),145,(.77,.85,1),4,(0,0,0))
-area('Red grazing edge',(4,1.7,1.8),400,(1,.009,.05),2.5,(0,0,0),'RECTANGLE',.4)
+area('Neutral grazing edge',(4,1.7,1.8),150,(1,.97,.92),2.5,(0,0,0),'RECTANGLE',.4)
 cameraData=bpy.data.cameras.new('Product camera');camera=bpy.data.objects.new('Product camera',cameraData);bpy.context.collection.objects.link(camera)
 camera.location=(5.8,-9.4,5.7);target=Vector((0,.12,.05));camera.rotation_euler=(target-camera.location).to_track_quat('-Z','Y').to_euler();cameraData.type='PERSP';cameraData.lens=48;scene.camera=camera
 scene.render.resolution_x=1600;scene.render.resolution_y=1000;scene.render.resolution_percentage=100

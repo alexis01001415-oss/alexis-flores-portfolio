@@ -1,0 +1,159 @@
+/* The projects read down the left column; the Blender laptop holds its place. */
+.showcase-window {
+  background: radial-gradient(ellipse at 74% 50%, #302e2b 0%, #1c1b19 38%, var(--ink) 76%);
+}
+
+.showcase-window.is-pinned-gallery {
+  height: 100svh;
+  min-height: 620px;
+  /* Prevent focus/scrollIntoView from scrolling the clipped track's parent. */
+  overflow: clip;
+}
+
+.is-pinned-gallery .showcase-track {
+  display: block;
+  width: 47%;
+  height: auto;
+  will-change: transform;
+}
+
+.is-pinned-gallery .project-slide {
+  display: block;
+  width: 100%;
+  height: 100svh;
+  min-height: 620px;
+  padding: clamp(24px, 4vh, 48px) 24px 100px var(--space);
+  overflow: visible;
+}
+
+.is-pinned-gallery .project-topline {
+  padding-top: 16px;
+  gap: 16px;
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 1.5px;
+}
+
+.is-pinned-gallery .project-slide h3 {
+  width: auto;
+  margin-top: 24px;
+  font-size: clamp(48px, 4.25vw, 74px);
+  line-height: 1.2;
+  letter-spacing: 1.5px;
+}
+
+.is-pinned-gallery .project-slide h3 > span {
+  margin-top: 0;
+  font-size: clamp(20px, 1.8vw, 28px);
+  line-height: 1.2;
+  letter-spacing: 1.5px;
+}
+
+.is-pinned-gallery .project-information {
+  width: 100%;
+  max-width: 480px;
+  margin-top: 24px;
+}
+
+.is-pinned-gallery .project-summary {
+  margin-bottom: 24px;
+  font-size: clamp(18px, 1.55vw, 24px);
+  line-height: 1.4;
+  letter-spacing: 1.5px;
+}
+
+.is-pinned-gallery .project-facts h4 {
+  margin: 16px 0 8px;
+  font-size: 11px;
+  line-height: 1.2;
+  letter-spacing: 1.5px;
+}
+
+.is-pinned-gallery .project-facts p {
+  max-width: none;
+  font-size: 16px;
+  line-height: 1.4;
+  letter-spacing: 1.5px;
+}
+
+.is-pinned-gallery .project-information .button {
+  margin-top: 24px;
+}
+
+.is-pinned-gallery .project-watermark {
+  left: 16px;
+  right: auto;
+  bottom: 120px;
+  font-size: min(22vw, 320px);
+  color: #f2eae306;
+  z-index: -1;
+}
+
+.showcase-fallbacks {
+  position: absolute;
+  inset: 0 0 0 47%;
+  z-index: 1;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+}
+
+.is-pinned-gallery .showcase-fallbacks .project-visual {
+  position: relative;
+  inset: auto;
+  width: 88%;
+  margin: 0;
+  transform: perspective(1200px) rotateY(-5deg) rotateX(3deg);
+  transition: none;
+}
+
+.is-pinned-gallery .showcase-canvas {
+  inset: 0;
+  display: block;
+}
+
+.is-pinned-gallery .project-controls {
+  bottom: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f2eae329;
+  gap: 24px;
+  background: linear-gradient(0deg, var(--ink) 70%, transparent);
+}
+
+.project-controls button {
+  transition: background .25s, color .25s, border-color .25s;
+}
+
+.project-controls button:hover,
+.project-controls button:focus-visible {
+  background: var(--button);
+  color: var(--paper);
+  border-color: var(--button);
+}
+
+.gallery-progress {
+  height: 6px;
+  overflow: hidden;
+}
+
+.gallery-progress i {
+  height: 6px;
+}
+
+@media (min-width: 1001px) and (max-height: 820px) {
+  .is-pinned-gallery .project-slide { padding-top: 24px; }
+  .is-pinned-gallery .project-slide h3 { margin-top: 16px; font-size: clamp(48px, 5vw, 64px); }
+  .is-pinned-gallery .project-slide h3 > span { font-size: 20px; }
+  .is-pinned-gallery .project-information { margin-top: 16px; }
+  .is-pinned-gallery .project-summary { font-size: 18px; margin-bottom: 16px; }
+  .is-pinned-gallery .project-facts h4 { margin: 12px 0 6px; }
+  .is-pinned-gallery .project-information .button { margin-top: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .showcase-track { will-change: auto; }
+}
+
+@media print {
+  .showcase-fallbacks { display: none; }
+}

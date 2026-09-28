@@ -29,11 +29,11 @@ export async function createExperience(host:HTMLElement, footer:HTMLElement, opt
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   host.append(renderer.domElement);
   let env:THREE.DataTexture|undefined;
-  scene.add(new THREE.HemisphereLight(0xf2eae3,0x3a2827,.45));
+  scene.add(new THREE.HemisphereLight(0xf2eae3,0x303033,.45));
   const key=new THREE.DirectionalLight(0xfff1e2,2.8);key.position.set(-3,7,5);key.castShadow=true;
   key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-7;key.shadow.camera.right=7;key.shadow.camera.top=6;key.shadow.camera.bottom=-6;key.shadow.normalBias=.025;key.shadow.bias=-.0003;scene.add(key);
   const fill=new THREE.DirectionalLight(0xe2e8ff,1.5);fill.position.set(5,4,-3);scene.add(fill);
-  const rim=new THREE.PointLight(0xff073a,32,18,2);rim.position.set(3,2,-2);scene.add(rim);
+  const rim=new THREE.DirectionalLight(0xf4f1eb,.65);rim.position.set(3,2,-2);scene.add(rim);
   let model:THREE.Group|undefined;
   let removeContextListeners=()=>{};
   const cleanup=()=>{removeContextListeners();renderer.dispose();renderer.domElement.remove();env?.dispose();model?.traverse(obj=>{if(obj instanceof THREE.Mesh){obj.geometry.dispose();const mats=Array.isArray(obj.material)?obj.material:[obj.material];for(const mat of mats){for(const value of Object.values(mat)){if(value instanceof THREE.Texture)value.dispose()}mat.dispose()}}})};
@@ -69,6 +69,14 @@ export async function createExperience(host:HTMLElement, footer:HTMLElement, opt
     const screenMaps:THREE.Texture[]=[];
     let screenMode=-1;
     if(screen){const mat=screen.material as THREE.MeshStandardMaterial;mat.map?.dispose();screen.material=new THREE.MeshBasicMaterial({toneMapped:false});mat.dispose();}
+    // The physical display becomes the next section's paper surface as the
+    // camera enters it. The geometry stays attached to the real Blender lid.
+    const transitionMaterial=new THREE.MeshBasicMaterial({color:0xf2eae3,toneMapped:false,transparent:true,opacity:0,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});
+    const transitionScreen=screen?new THREE.Mesh(screen.geometry.clone(),transitionMaterial):undefined;
+    if(transitionScreen){transitionScreen.visible=false;transitionScreen.renderOrder=2;screen.add(transitionScreen);}
+    const screenCenter=new THREE.Vector3(),screenNormal=new THREE.Vector3(),frontCamera=new THREE.Vector3(),centeredLaptop=new THREE.Vector3(0,.45,0);
+    const screenLocalCenter=new THREE.Vector3();
+    if(screen){screen.geometry.computeBoundingBox();screen.geometry.boundingBox!.getCenter(screenLocalCenter);}
     function screenDesign(mode:number){const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=628;const ctx=canvas.getContext('2d')!;
       ctx.fillStyle=mode===1?'#F2EAE3':'#131211';ctx.fillRect(0,0,1024,628);ctx.fillStyle=mode===1?'#131211':'#F2EAE3';ctx.font='500 18px Yantramanav';ctx.fillText(['ALEXIS FLORES / UX · UI','AF / DISEÑO DE INTERFACES','AF / DESARROLLO FRONT-END'][mode],52,54);ctx.fillText(`0${mode+1}`,930,54);
       ctx.font='700 94px Yantramanav';ctx.fillText(['Diseño UX/UI','Interfaces','Front-end'][mode],52,225);ctx.fillText(['y front-end.','y prototipos.','responsive.'][mode],52,320);
@@ -78,7 +86,7 @@ export async function createExperience(host:HTMLElement, footer:HTMLElement, opt
     }
     if(screen){screenMaps.push(screenDesign(0),screenDesign(1),screenDesign(2));}
     let progress=0,paused=false,isFooter=false,isShowcase=false,light=false,visible=true,raf=0,disposed=false,ready=false,contextLost=false,pointerX=0,pointerY=0,currentX=0,currentY=0;
-    let footerProgress=0,showcaseProgress=0,showcaseIndex=0;
+    let footerProgress=0,transitionProgress=0,showcaseIndex=0,lastShowcaseIndex=-1;
     const showcaseFiles=['curiosity','macloud','gatical'];
     const showcaseTextures=new Map<number,THREE.Texture>();
     const requestedTextures=new Set<number>();
@@ -118,7 +126,7 @@ export async function createExperience(host:HTMLElement, footer:HTMLElement, opt
         if(imageRatio>screenRatio){texture.repeat.x=screenRatio/imageRatio;texture.offset.x=(1-texture.repeat.x)/2;}
         else{texture.repeat.y=imageRatio/screenRatio;texture.offset.y=1-texture.repeat.y;}
         showcaseTextures.set(index,texture);requestRender();
-      },undefined,()=>{if(!disposed&&showcaseIndex===index)markShowcaseReady(false);});
+      },undefined,()=>{if(!disposed&&showcaseIndex===index&&lastShowcaseIndex<0)markShowcaseReady(false);});
     }
     const dark=new THREE.Color('#131211'),paper=new THREE.Color('#F2EAE3'),background=new THREE.Color();
     const target=new THREE.Vector3();
@@ -128,9 +136,12 @@ export async function createExperience(host:HTMLElement, footer:HTMLElement, opt
     function apply(){
       const mobile=window.innerWidth<=800;
       const p=paused?0:progress;
-      const showcaseTexture=isShowcase&&!isFooter?showcaseTextures.get(showcaseIndex):undefined;
-      const nextScreen=showcaseTexture?3+showcaseIndex:isFooter?2:isShowcase?0:p>.79?2:p>.50?1:0;
+      const transition=paused||isShowcase||isFooter?0:transitionProgress;
+      if(isShowcase&&!isFooter&&showcaseTextures.has(showcaseIndex))lastShowcaseIndex=showcaseIndex;
+      const showcaseTexture=isShowcase&&!isFooter?showcaseTextures.get(lastShowcaseIndex):undefined;
+      const nextScreen=showcaseTexture?3+lastShowcaseIndex:isFooter?2:isShowcase?0:p>.79?2:p>.50?1:0;
       if(screenMaps.length&&screenMode!==nextScreen){const mat=screen.material as THREE.MeshBasicMaterial;mat.map=showcaseTexture??screenMaps[nextScreen];mat.needsUpdate=true;screenMode=nextScreen;}
+      if(transitionScreen){transitionScreen.visible=transition>0;transitionMaterial.opacity=smooth(THREE.MathUtils.clamp((transition-.48)/.4,0,1));}
       let i=0;while(i<poses.length-2&&p>poses[i+1].p)i++;
       const a=poses[i],b=poses[i+1];const t=smooth(THREE.MathUtils.clamp((p-a.p)/(b.p-a.p),0,1));
       const float=mobile?smooth(Math.min(1,p/.24)):0;
@@ -142,26 +153,55 @@ export async function createExperience(host:HTMLElement, footer:HTMLElement, opt
       desk.position.y=v('desk');desk.visible=!isFooter&&!isShowcase;
       props.forEach((obj,index)=>{obj.visible=!isFooter&&!isShowcase&&p<.29;const start=propPositions[index];const f=smooth(Math.min(1,p/.27));obj.position.set(start.x*(1+f*4),start.y+f*(5+index),start.z-f*(3+index));obj.rotation.y=f*(index%2?-1.5:1.3);obj.rotation.z=f*(index%2?.3:-.3)});
       for(let c=0;c<3;c++){camera.position.setComponent(c,mix(a.camera[c],b.camera[c],t));target.setComponent(c,mix(a.target[c],b.target[c],t));}
-      if(mobile){camera.position.set(mix(.4,0,float),mix(6.3,4.1,float),mix(13,12.8,float));target.set(0,mix(-.6,.95,float),0);camera.fov=43;}else camera.fov=40;
+      if(mobile){
+        camera.position.set(mix(.4,0,float),mix(6.3,4.1,float),mix(13,12.8,float));
+        // Short screens keep the desk below the two-line name while the hero scrolls.
+        const shortScreenOffset=Math.max(0,740-window.innerHeight)/80;
+        target.set(0,mix(-.6+shortScreenOffset,.95,float),0);camera.fov=43;
+      }else camera.fov=40;
       const enter=smooth(THREE.MathUtils.clamp((p-.43)/.12,0,1));const leave=smooth(THREE.MathUtils.clamp((p-.73)/.11,0,1));
       const pale=enter*(1-leave);
       background.copy(dark).lerp(paper,pale);scene.background=background;
       scene.environmentIntensity=.75+pale*.35+(light?.05:0);
       document.documentElement.style.setProperty('--scene-ink',pale>.5?'#131211':'#f2eae3');
+      if(transition>0&&screen){
+        const align=smooth(Math.min(1,transition/.36));
+        const approach=smooth(THREE.MathUtils.clamp((transition-.36)/.64,0,1));
+        laptop.position.lerp(centeredLaptop,align);
+        laptop.rotation.x=mix(laptop.rotation.x,0,align);
+        laptop.rotation.y=mix(laptop.rotation.y,0,align);
+        laptop.rotation.z=mix(laptop.rotation.z,0,align);
+        lid.rotation.x=mix(lid.rotation.x,-Math.PI/2,align);
+        model!.updateMatrixWorld(true);
+        screenCenter.copy(screenLocalCenter);screen.localToWorld(screenCenter);
+        // Work from the exported display normal, so the approach stays
+        // perpendicular even while the lid finishes rotating into place.
+        screenNormal.fromBufferAttribute(screen.geometry.attributes.normal,0).transformDirection(screen.matrixWorld);
+        const halfFov=Math.tan(THREE.MathUtils.degToRad(40)/2);
+        const screenHalfWidth=1.54,screenHalfHeight=.9445;
+        const startDistance=Math.max(screenHalfHeight/(halfFov*.65),screenHalfWidth/(halfFov*camera.aspect*.74));
+        const coverDistance=Math.min(screenHalfHeight/halfFov,screenHalfWidth/(halfFov*camera.aspect))*.88;
+        frontCamera.copy(screenCenter).addScaledVector(screenNormal,mix(startDistance,coverDistance,approach));
+        camera.position.lerp(frontCamera,align);target.lerp(screenCenter,align);
+        camera.fov=mix(camera.fov,40,align);
+        scene.environmentIntensity=.9;
+        background.copy(dark).lerp(paper,smooth(THREE.MathUtils.clamp((transition-.8)/.2,0,1)));
+        desk.visible=false;props.forEach(obj=>{obj.visible=false});
+      }
       if(isShowcase&&!isFooter){
-        const turn=paused?.5:showcaseProgress;
         scene.background=null;scene.environmentIntensity=.95;
-        laptop.position.set(mobile?0:1.2,mobile?.2:.25,0);
-        laptop.rotation.set(.015,mix(-.16,.06,turn),mix(.018,-.012,turn));
-        laptop.scale.setScalar(mobile?.94:1.16);
+        laptop.position.set(mobile?0:1.5,mobile?.2:.25,0);
+        laptop.rotation.set(.015,-.05,.003);
+        laptop.scale.setScalar(mobile?.94:1.10);
         lid.rotation.x=THREE.MathUtils.degToRad(-103);
         camera.position.set(0,mobile?3.6:3.1,mobile?9.6:7.7);
         target.set(0,1.15,0);camera.fov=mobile?43:38;
       }
       if(isFooter){scene.background=null;laptop.position.set(0,.4,0);laptop.rotation.set(.03,mix(-.6,-.22,paused?.5:footerProgress),-.11);laptop.scale.setScalar(1);lid.rotation.x=THREE.MathUtils.degToRad(-105);camera.position.set(.3,3.1,7.5);target.set(0,1,0);camera.fov=38;}
-      camera.position.x+=currentX*(mobile||paused?0:.22);camera.position.y+=currentY*(mobile||paused?0:.10);camera.lookAt(target);camera.updateProjectionMatrix();
+      const pointerStrength=mobile||paused||isShowcase?0:1-smooth(Math.min(1,transition/.36));
+      camera.position.x+=currentX*.22*pointerStrength;camera.position.y+=currentY*.10*pointerStrength;camera.lookAt(target);camera.updateProjectionMatrix();
     }
-    function render(){raf=0;if(!ready||disposed||contextLost||document.hidden||(!visible&&!isShowcase&&!isFooter))return;currentX=mix(currentX,pointerX,.09);currentY=mix(currentY,pointerY,.09);apply();renderer.render(scene,camera);if(renderer.getContext().isContextLost())return;renderer.domElement.style.visibility='';document.querySelector('.journey')?.classList.add('scene-ready');markShowcaseReady(isShowcase&&!isFooter&&showcaseTextures.has(showcaseIndex)&&Boolean(screen));if(Math.abs(currentX-pointerX)+Math.abs(currentY-pointerY)>.003)requestRender();}
+    function render(){raf=0;if(!ready||disposed||contextLost||document.hidden||(!visible&&!isShowcase&&!isFooter))return;currentX=mix(currentX,pointerX,.09);currentY=mix(currentY,pointerY,.09);apply();renderer.render(scene,camera);if(renderer.getContext().isContextLost())return;renderer.domElement.style.visibility='';document.querySelector('.journey')?.classList.add('scene-ready');markShowcaseReady(isShowcase&&!isFooter&&lastShowcaseIndex>=0&&Boolean(screen));if(Math.abs(currentX-pointerX)+Math.abs(currentY-pointerY)>.003)requestRender();}
     function requestRender(){if(!raf&&!disposed&&!contextLost)raf=requestAnimationFrame(render);}
     resize();apply();options.progress(94,'Preparando luces y reflejos');
     await renderer.compileAsync(scene,camera);
@@ -172,20 +212,21 @@ export async function createExperience(host:HTMLElement, footer:HTMLElement, opt
     const visibility=()=>{if(!document.hidden)requestRender()};document.addEventListener('visibilitychange',visibility);
     return {
       setProgress(value:number){progress=value;requestRender()},
+      setTransition(value:number){transitionProgress=THREE.MathUtils.clamp(value,0,1);requestRender()},
       setPointer(x:number,y:number){pointerX=x;pointerY=y;requestRender()},
       setPaused(value:boolean){paused=value;requestRender()},
       setLight(value:boolean){light=value;requestRender()},
       setVisible(value:boolean){visible=value;if(value)requestRender()},
       setFooter(value:boolean,p=0){footerProgress=p;isFooter=value;mountCanvas();if(value)markShowcaseReady(false);requestRender()},
-      setShowcase(active:boolean,p=0,index=0){
-        isShowcase=active&&Boolean(showcaseHost);showcaseProgress=THREE.MathUtils.clamp(p,0,1);
+      setShowcase(active:boolean,_p=0,index=0){
+        isShowcase=active&&Boolean(showcaseHost);
         showcaseIndex=THREE.MathUtils.clamp(Math.round(index),0,showcaseFiles.length-1);
-        if(isShowcase)loadShowcaseTexture(showcaseIndex);
-        if(!isShowcase||isFooter||!showcaseTextures.has(showcaseIndex))markShowcaseReady(false);
+        if(isShowcase)showcaseFiles.forEach((_,index)=>loadShowcaseTexture(index));
+        if(!isShowcase||isFooter||lastShowcaseIndex<0)markShowcaseReady(false);
         mountCanvas();requestRender();
-        return isShowcase&&!isFooter&&showcaseTextures.has(showcaseIndex)&&Boolean(screen);
+        return isShowcase&&!isFooter&&lastShowcaseIndex>=0&&Boolean(screen);
       },
-      dispose(){disposed=true;cancelAnimationFrame(raf);observer.disconnect();document.removeEventListener('visibilitychange',visibility);markShowcaseReady(false);screenMaps.forEach(texture=>texture.dispose());showcaseTextures.forEach(texture=>texture.dispose());cleanup()},
+      dispose(){disposed=true;cancelAnimationFrame(raf);observer.disconnect();document.removeEventListener('visibilitychange',visibility);markShowcaseReady(false);screenMaps.forEach(texture=>texture.dispose());showcaseTextures.forEach(texture=>texture.dispose());if(!transitionScreen)transitionMaterial.dispose();cleanup()},
     };
   }catch(error){cleanup();throw error}
 }

@@ -5,6 +5,9 @@ import Lenis from 'lenis';
 import { setupPortrait } from './portrait';
 import { setupContact } from './contact';
 import type { Experience } from './scene';
+import './gallery.css';
+import './timeline.css';
+import './refinements.css';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 const $ = <T extends Element = HTMLElement>(selector: string) => document.querySelector<T>(selector)!;
@@ -13,7 +16,7 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 const clamp = (v: number) => Math.max(0, Math.min(1, v));
 let experience: Experience | undefined, lenis: Lenis | undefined;
 let motion: gsap.Context | undefined, galleryTrigger: ScrollTrigger | undefined;
-let loaded = false, menuOpen = false, journeyProgress = 0, galleryProgress = 0, galleryActive = false;
+let loaded = false, menuOpen = false, journeyProgress = 0, transitionProgress = 0, galleryProgress = 0, galleryActive = false;
 const projectSlides = $$('.project-slide');
 const splitHeadingsSeen = new WeakSet<HTMLElement>();
 const loader = $('#preloader');
@@ -33,6 +36,7 @@ function scrollState() {
   const max = document.documentElement.scrollHeight - innerHeight;
   const p = max ? window.scrollY / max : 0;
   $('.rail-progress i').style.transform = innerWidth <= 800 ? `scaleX(${p})` : `scaleY(${p})`;
+  syncScene();
 }
 window.addEventListener('scroll', scrollState, { passive: true });
 
@@ -85,7 +89,7 @@ function scrollTo(target: HTMLElement | number, done?: () => void) {
 function showProject(index: number, focus = false) {
   const target = projectSlides[index];
   const done = focus ? () => { const h = target.querySelector<HTMLElement>('h3')!; h.tabIndex = -1; h.focus({ preventScroll: true }); } : undefined;
-  if (galleryTrigger) scrollTo(galleryTrigger.start + (galleryTrigger.end - galleryTrigger.start) * index / 2 + (index === 0 ? 1 : 0), done);
+  if (galleryTrigger) scrollTo(galleryTrigger.start + (galleryTrigger.end - galleryTrigger.start) * index / (projectSlides.length - 1) + (index === 0 ? 1 : 0), done);
   else scrollTo(target, done);
 }
 $$<HTMLAnchorElement>('a[href^="#"]').forEach(link => link.addEventListener('click', event => {
@@ -104,8 +108,12 @@ $$('[data-project-index]').forEach(button => button.addEventListener('click', ()
 
 function syncScene() {
   const hero = $('.journey').getBoundingClientRect(), foot = $('.contact').getBoundingClientRect();
-  const footerActive = foot.top < innerHeight && foot.bottom > 0;
-  experience?.setShowcase(galleryActive, galleryProgress, Math.round(galleryProgress * 2));
+  const stage = $('.showcase-window'), stageBounds = stage.getBoundingClientRect();
+  // Prepare the laptop before it enters view and keep it in place through both
+  // ends of the pin. The footer borrows the renderer once the gallery leaves.
+  galleryActive = stage.classList.contains('is-pinned-gallery') && stageBounds.top < innerHeight + 400 && stageBounds.bottom > 0;
+  const footerActive = !galleryActive && foot.top < innerHeight && foot.bottom > 0;
+  experience?.setShowcase(galleryActive, galleryProgress, Math.round(galleryProgress * (projectSlides.length - 1)));
   experience?.setFooter(footerActive, clamp((innerHeight - foot.top) / (innerHeight + foot.height)));
   experience?.setVisible(footerActive || galleryActive || (hero.top < innerHeight && hero.bottom > 0));
 }
@@ -115,6 +123,8 @@ function setupMotion() {
   lenis?.destroy(); lenis = undefined;
   gsap.ticker.remove(lenisTick);
   galleryTrigger = undefined; galleryActive = false;
+  transitionProgress = 0;
+  experience?.setTransition(0);
   projectSlides.forEach(slide => slide.inert = false);
   $('.showcase-window').classList.remove('is-pinned-gallery');
   experience?.setPaused(reduced.matches);
@@ -125,7 +135,7 @@ function setupMotion() {
     if (!loaded || menuOpen) lenis.stop();
   }
   motion = gsap.context(() => {
-    ScrollTrigger.create({ trigger: '.journey', start: 'top top', end: 'bottom bottom', onUpdate: self => {
+    ScrollTrigger.create({ trigger: '.journey', start: 'top top', endTrigger: '#producto', end: 'bottom bottom', onUpdate: self => {
       journeyProgress = self.progress; experience?.setProgress(self.progress);
       $('.journey').classList.toggle('has-scrolled', self.progress > .1);
       $('.scene-meter i').style.transform = `scaleX(${self.progress})`;
@@ -133,6 +143,16 @@ function setupMotion() {
       $('#scene-index').textContent = `0${chapter + 1} / 04`;
       $('#scene-label').textContent = ['UX/UI & FRONT-END', 'EXPERIENCIA DE USUARIO', 'DESARROLLO WEB', 'PRODUCTOS DIGITALES'][chapter];
     }, onToggle: syncScene });
+    ScrollTrigger.create({ trigger: '.hero', start: 'top bottom', end: 'bottom top', onToggle: self => $('.journey').classList.toggle('hero-is-visible', self.isActive) });
+    const transition = document.querySelector<HTMLElement>('.journey-transition');
+    if (transition) {
+      ScrollTrigger.create({ trigger: transition, start: 'top 55%', end: 'bottom bottom', onUpdate: self => {
+        transitionProgress = reduced.matches ? 0 : self.progress;
+        experience?.setTransition(transitionProgress);
+        $('.journey').classList.toggle('is-transitioning', transitionProgress > 0);
+      }, onToggle: syncScene });
+      if (!reduced.matches) gsap.to('.chapter-outro .chapter-copy', { opacity: 0, y: -48, ease: 'none', scrollTrigger: { trigger: transition, start: 'top 90%', end: 'top 40%', scrub: true } });
+    }
     ScrollTrigger.create({ trigger: '.contact', start: 'top bottom', end: 'bottom top', onUpdate: syncScene, onToggle: syncScene });
     if (reduced.matches) return;
     gsap.context(splitContext => {
@@ -183,26 +203,51 @@ function setupMotion() {
     mm.add('(min-width: 1001px) and (min-height: 620px)', () => {
       const stage = $('.showcase-window'), track = $('.showcase-track');
       stage.classList.add('is-pinned-gallery');
-      const distance = () => track.scrollWidth - stage.clientWidth;
-      const update = (self: ScrollTrigger) => {
-        galleryProgress = self.progress; galleryActive = self.isActive;
-        const index = Math.round(self.progress * 2);
-        $$('[data-project-index]').forEach((b, i) => b.setAttribute('aria-current', String(i === index)));
-        projectSlides.forEach((slide, i) => slide.inert = i !== index);
-        $('.gallery-progress i').style.transform = `scaleX(${1 / 3 + self.progress * 2 / 3})`;
-        syncScene();
-      };
-      const tween = gsap.to(track, { x: () => -distance(), ease: 'none', scrollTrigger: { trigger: stage, start: 'top top', end: () => `+=${distance() * 1.2}`, pin: true, scrub: .65, anticipatePin: 1, invalidateOnRefresh: true, onUpdate: update, onToggle: update } });
-      galleryTrigger = tween.scrollTrigger;
-      return () => {
+      const fallback = document.createElement('div');
+      fallback.className = 'showcase-fallbacks';
+      const visuals = projectSlides.map(slide => slide.querySelector<HTMLElement>('.project-visual')!);
+      visuals.forEach(visual => fallback.append(visual));
+      stage.append(fallback);
+      const restoreGallery = () => {
+        visuals.forEach((visual, index) => { visual.hidden = false; projectSlides[index].append(visual); });
+        fallback.remove();
         stage.classList.remove('is-pinned-gallery'); galleryTrigger = undefined; galleryActive = false;
         projectSlides.forEach(slide => slide.inert = false); syncScene();
       };
+      // A pinned panel must contain all its text, including at browser zoom.
+      // Short viewports use the ordinary document flow instead of clipping it.
+      const fits = projectSlides.every(slide => {
+        const information = slide.querySelector<HTMLElement>('.project-information')!;
+        return information.getBoundingClientRect().bottom <= slide.getBoundingClientRect().bottom - 84;
+      });
+      if (!fits) { restoreGallery(); return; }
+      const distance = () => stage.clientHeight * (projectSlides.length - 1);
+      const update = () => {
+        const index = Math.round(galleryProgress * (projectSlides.length - 1));
+        stage.dataset.activeProject = String(index);
+        $$('[data-project-index]').forEach((b, i) => b.setAttribute('aria-current', String(i === index)));
+        projectSlides.forEach((slide, i) => slide.inert = i !== index);
+        visuals.forEach((visual, i) => visual.hidden = i !== index);
+        $('.gallery-progress i').style.transform = `scaleX(${1 / projectSlides.length + galleryProgress * (projectSlides.length - 1) / projectSlides.length})`;
+        syncScene();
+      };
+      const tween = gsap.to(track, { y: () => -distance(), ease: 'none', onUpdate() { galleryProgress = this.progress(); update(); }, scrollTrigger: { trigger: stage, start: 'top top', end: () => `+=${distance() * 1.2}`, pin: true, scrub: .45, anticipatePin: 1, invalidateOnRefresh: true, onToggle: syncScene } });
+      galleryTrigger = tween.scrollTrigger;
+      galleryProgress = tween.progress(); update();
+      return restoreGallery;
     });
   });
   ScrollTrigger.refresh(); scrollState(); syncScene();
 }
 reduced.addEventListener('change', setupMotion);
+let viewportWidth = innerWidth, viewportHeight = innerHeight, resizeTimer = 0;
+window.addEventListener('resize', () => {
+  const changed = innerWidth !== viewportWidth || (innerWidth > 1000 && innerHeight !== viewportHeight);
+  viewportWidth = innerWidth; viewportHeight = innerHeight;
+  if (!loaded || !changed) return;
+  clearTimeout(resizeTimer);
+  resizeTimer = window.setTimeout(setupMotion, 160);
+}, { passive: true });
 document.addEventListener('pointermove', event => { if (event.pointerType === 'mouse') experience?.setPointer(event.clientX / innerWidth * 2 - 1, event.clientY / innerHeight * 2 - 1); }, { passive: true });
 
 async function finishLoading(success: boolean) {
@@ -225,6 +270,7 @@ async function boot() {
     if (abort.signal.aborted) return;
     experience = await module.createExperience($('#experience-canvas'), $('#footer-canvas'), { progress: () => {}, signal: abort.signal });
     experience.setProgress(journeyProgress); experience.setPaused(reduced.matches);
+    experience.setTransition(transitionProgress);
     syncScene(); await finishLoading(true);
   } catch (error) {
     if (!abort.signal.aborted) console.warn('Vista 3D no disponible; el contenido sigue accesible.', error);

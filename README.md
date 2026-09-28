@@ -1,4 +1,4 @@
-# Félix Alexis Flores Rojas — Portafolio v4
+# Félix Alexis Flores Rojas — Portafolio v5
 
 Portafolio profesional de **Alexis Flores**, diseñador UX/UI y desarrollador front-end. Sitio estático para GitHub Pages con una escena original de Blender, Three.js, GSAP, SplitText y Lenis. Presenta competencias, trayectoria, proyectos web y un CV descargable.
 
@@ -19,13 +19,27 @@ Node.js 22 o posterior. La compilación valida TypeScript, genera los archivos d
 
 La paleta combina marfil `#F2EAE3`, gris cálido `#D0C9C3`, rojo `#FF073A`, carbón `#131211` y negro. Los botones primarios usan `#C90030` con texto marfil, con contraste aproximado de **5.01:1**. La tipografía es Yantramanav; los iconos son Google Material Symbols alojados localmente.
 
-- **Navegación lateral:** cabecera fija a la izquierda en escritorio y barra superior en móvil. El menú ampliado contiene perfil, CV, desplegable de proyectos y contacto. Incluye cierre con Escape, devolución del foco y navegación con teclado.
+- **Navegación lateral:** cabecera siempre visible a la izquierda en escritorio y barra superior en móvil. El menú ampliado contiene perfil, CV, desplegable de proyectos y contacto. Los enlaces del menú se rellenan de izquierda a derecha al pasar el cursor o recibir foco; logo, menú, contacto y descarga del CV tienen estados de interacción propios. Incluye cierre con Escape, devolución del foco y navegación con teclado.
 - **Preloader:** entrada del monograma `af.` y salida mediante cinco franjas animadas. Espera a las fuentes y a la preparación de la escena; contempla una entrada mínima de 1.9 segundos y un límite de carga de 12 segundos. No muestra porcentajes simulados ni exige pulsar un botón.
-- **Recorrido inicial:** la laptop de Blender se abre, los objetos del escritorio se separan y la composición cambia de lado con el scroll. Los capítulos describen UX/UI, desarrollo web y productos digitales.
+- **Hero:** el sello «PORTAFOLIO 2026» aumenta de tamaño y recibe un acento gráfico rojo. Una textura animada de ruido y líneas analógicas aparece exclusivamente en el hero, se detiene cuando este sale de pantalla y queda estática con movimiento reducido.
+- **Recorrido inicial:** la laptop de Blender se abre, los objetos del escritorio se separan y la composición cambia de lado con el scroll. Los capítulos describen UX/UI, desarrollo web y productos digitales. Después del tercer capítulo, la laptop se coloca de frente y la cámara se acerca hasta que su pantalla llena el ancho de la vista, dando paso al perfil sobre fondo marfil. Esta transición se acorta si el usuario prefiere movimiento reducido o falla la escena.
 - **Texto y transiciones:** GSAP SplitText revela líneas de títulos; ScrollTrigger coordina las franjas entre secciones y el trazado de la trayectoria. Lenis suaviza el desplazamiento.
-- **Trayectoria:** una curva ancha conecta fechas y fichas de experiencia. Años y tarjetas tienen movimientos vinculados al scroll; en móvil la lectura se organiza en una columna.
-- **Galería de proyectos:** en escritorio amplio, el desplazamiento vertical recorre tres proyectos horizontalmente. La misma laptop de Blender muestra capturas de cada sitio en su pantalla. Los botones numerados y el menú permiten seleccionar el proyecto. En pantallas pequeñas o con movimiento reducido se usa una lista vertical con imágenes.
+- **Trayectoria:** una cinta de mayor tamaño forma tres bucles y cruces entre las experiencias, con más espacio entre entradas. El recorrido y las tarjetas no proyectan sombras. Años y tarjetas tienen movimientos vinculados al scroll; en móvil la lectura se organiza en una columna.
+- **Proyectos web freelancer:** en escritorio amplio, la información de la columna izquierda avanza verticalmente mientras la laptop permanece fija a la derecha. Cambia la captura dentro de su pantalla y se conserva la última textura disponible mientras carga la siguiente. Los botones numerados y el menú permiten seleccionar el proyecto; las barras de progreso tienen más grosor. Si la escena no está disponible, se muestra la captura correspondiente en la columna visual. En pantallas pequeñas, vistas de poca altura o con movimiento reducido se usa una lista vertical para mantener todo el contenido accesible.
 - **Contacto:** correo directo, formulario preparado para Web3Forms y cierre con la laptop 3D. El modo oscuro es la presentación principal; perfil y trayectoria usan un fondo marfil.
+
+### Tipografía responsive
+
+`src/refinements.css` centraliza el espaciado entre caracteres y el interlineado. El cuerpo parte de 16 px; los títulos ajustan su tamaño con `clamp()` y reglas por ancho de pantalla.
+
+| Ancho de la vista | Espaciado de títulos | Interlineado de títulos | Espaciado del cuerpo | Interlineado del cuerpo |
+| --- | --- | --- | --- | --- |
+| Más de 1100 px | 1.5 px | 120% | 1.5 px | 140% |
+| 801–1100 px | 1 px | 120% | 1 px | 145% |
+| 561–800 px | 0.8 px | 120% | 0.6 px | 145% |
+| Hasta 560 px | 0.6 px | 120% | 0.35 px | 150% |
+
+Los iconos, el monograma y las cifras decorativas conservan las métricas propias de su composición. `src/timeline.css` controla las dimensiones y el espacio del recorrido profesional.
 
 ### Máscara fotográfica WebGL
 
@@ -52,7 +66,7 @@ La trayectoria de la web destaca los tres puestos de diseño; el PDF incluye tam
 
 Las funciones descritas incluyen sitios responsive en WordPress, HTML/CSS/JavaScript, prototipos y flujos en Figma, pruebas de usabilidad, interfaces para Odoo, dashboards, SEO, accesibilidad y comunicación visual. Las competencias reúnen lo documentado y las herramientas confirmadas por Alexis: Figma, FigJam, Miro, Maze, GitHub, WordPress, Elementor, Framer, Webflow, Shopify, Odoo, Blender, Adobe, Rive, Lottie y desarrollo asistido por IA.
 
-## Proyectos publicados
+## Proyectos web freelancer
 
 La selección muestra capturas reales y enlaces a los sitios:
 
@@ -98,7 +112,9 @@ Fuentes: `assets-source/v2/workstation-v2.blend` y `assets-source/v2/create_work
 
 El GLB pesa aproximadamente 1.49 MB y contiene 47 meshes y 36,894 triángulos, con texturas de color y rugosidad empaquetadas. Se carga directamente, sin decodificador Draco. El póster procede de un render de Blender y queda disponible si la escena no carga. Las fuentes editables permanecen fuera de `dist/`.
 
-Un único renderer de Three.js se desplaza entre el recorrido inicial, la galería y el footer. La galería carga las capturas cuando se necesitan y las usa como textura de la pantalla. Los capítulos iniciales utilizan composiciones originales en `CanvasTexture`; no descargan videos.
+La iluminación utiliza tonos neutros: se retiró la luz roja tanto de Three.js como de la fuente Blender y su póster. Los materiales rojos del escritorio siguen siendo parte de la paleta del objeto.
+
+Un único renderer de Three.js se desplaza entre el recorrido inicial, la galería y el footer. La cámara añade un acercamiento frontal al final del recorrido inicial. En la galería, la pose de la laptop permanece fija; las capturas se cargan como texturas de pantalla y la última disponible se mantiene visible durante los cambios. Los capítulos iniciales utilizan composiciones originales en `CanvasTexture`; no descargan videos.
 
 Los reflejos proceden de un entorno PMREM precalculado de Three.js: `public/models/studio-environment.pmrem`, 265,087 bytes comprimidos con gzip. El atlas mide 384 × 512 píxeles, RGBA Float16 little endian. La web lo carga mediante `DecompressionStream` y `DataTexture`, evitando generar PMREM al entrar.
 

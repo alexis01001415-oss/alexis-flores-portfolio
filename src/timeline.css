@@ -1,0 +1,178 @@
+/* A continuous, oversized ribbon curls around the three career entries. */
+.career-route {
+  margin-top: 112px;
+  padding: 0;
+}
+
+.route-art {
+  left: -4%;
+  width: 108%;
+  opacity: 1;
+}
+
+.route-track,
+.route-ink {
+  stroke-width: 126;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.route-track {
+  stroke: none;
+}
+
+.career-stop {
+  min-height: max(880px, 110svh);
+  padding: 112px 0;
+}
+
+.career-card {
+  width: 48%;
+  padding: 40px 32px 32px;
+  box-shadow: none;
+}
+
+.career-year {
+  top: 48px;
+  right: 3%;
+  max-width: 47%;
+}
+
+.stop-right .career-year {
+  left: 2%;
+}
+
+.career-card li + li {
+  margin-top: 16px;
+}
+
+.career-date {
+  margin-bottom: 32px;
+}
+
+.career-tags {
+  padding-top: 24px;
+  margin-top: 32px;
+}
+
+@media (min-width: 1600px) {
+  .career-card {
+    max-width: 680px;
+    padding: 48px;
+  }
+}
+
+@media (max-width: 1000px) {
+  .career-route {
+    margin-top: 88px;
+  }
+
+  .career-stop {
+    min-height: 920px;
+    padding: 144px 0 96px;
+  }
+
+  .career-card {
+    width: 53%;
+    padding: 32px 24px;
+  }
+
+  .career-year {
+    top: 48px;
+    right: 0;
+  }
+
+  .route-track,
+  .route-ink {
+    stroke-width: 138;
+  }
+}
+
+@media (max-width: 800px) {
+  .career-route {
+    margin-top: 64px;
+  }
+
+  .career-stop {
+    min-height: 880px;
+    padding-top: 168px;
+  }
+
+  .career-card {
+    width: 59%;
+    padding: 32px 24px;
+  }
+
+  .career-year {
+    top: 40px;
+  }
+
+  .route-art {
+    left: -8%;
+    width: 116%;
+  }
+
+  .route-track,
+  .route-ink {
+    stroke-width: 126;
+  }
+}
+
+@media (min-width: 561px) and (max-width: 1000px) {
+  .career-year {
+    max-width: 39%;
+    font-size: 17vw;
+  }
+}
+
+@media (max-width: 560px) {
+  .career-route {
+    margin: 64px 0 0;
+  }
+
+  .career-stop {
+    min-height: 0;
+    padding: 48px 0 144px;
+  }
+
+  .career-year {
+    max-width: none;
+    margin-bottom: 72px;
+  }
+
+  .career-card {
+    width: 100%;
+    padding: 32px 16px;
+  }
+
+  .route-art {
+    left: -28%;
+    width: 156%;
+  }
+
+  .route-track,
+  .route-ink {
+    stroke-width: 100;
+  }
+
+  .career-date {
+    margin-bottom: 24px;
+  }
+}
+
+@media print {
+  .career-route {
+    margin-top: 24px;
+  }
+
+  .career-stop {
+    min-height: 0;
+    padding: 24px 0;
+  }
+
+  .career-card {
+    width: 100%;
+    max-width: none;
+    padding: 16px 0;
+  }
+}

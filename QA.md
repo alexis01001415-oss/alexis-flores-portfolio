@@ -1,4 +1,41 @@
-# Verificación — cuarta versión
+# Verificación — quinta versión
+
+28 de septiembre de 2026. Iteración de tipografía, recorrido 3D y galería.
+
+## Cambios comprobados
+
+- Escritorio: 1.5 px de espaciado, títulos a 120% y párrafos a 140%. Verificado en estilos calculados; escalas de tablet y móvil documentadas en README.
+- La laptop se centra, gira de frente y llena el encuadre antes del perfil. La pantalla se funde con el fondo marfil sin corte de color visible.
+- Iluminación neutra en Three.js y en el póster regenerado con Blender. Archivo fuente `.blend` actualizado.
+- Portafolio 2026 ampliado, ruido animado limitado al hero, indicadores más gruesos y hovers de navegación, logo y CV.
+- Trayectoria con bucles más amplios, sin sombra ni guía gris detrás. Fechas ajustadas para evitar superposición con tarjetas en tablet.
+- Proyectos web freelancer: columna izquierda vertical, laptop fija y cambio de captura en la pantalla. Las capturas de respaldo permanecen en una posición fija durante la carga del 3D.
+- Selectores y anclas de la galería comprobados. Se corrigió el desplazamiento interno causado por el foco usando `overflow: clip` en el contenedor fijado.
+- Menú: apertura, foco inicial y cierre con Escape conservan el foco esperado.
+- Revisión visual en 320×568, 390×844, 768×1024 y 1280×720, sin desbordamiento horizontal del documento. Cámara corregida para separar la laptop del nombre en móviles de poca altura.
+- TypeScript/Vite y `git diff --check` correctos. Consola sin errores en el recorrido inspeccionado. Aviso de tamaño limitado al módulo Three.js dinámico.
+- Limpieza al redimensionar, movimiento reducido, fallback y versión sin JavaScript revisados en código. No se simuló pérdida de contexto WebGL ni se evaluó con lector de pantalla real.
+
+## Lighthouse de producción local — v5
+
+| Categoría | Móvil | Escritorio |
+| --- | ---: | ---: |
+| Rendimiento | 73 | 91 |
+| Accesibilidad | 100 | 100 |
+| Buenas prácticas | 100 | 100 |
+| SEO | 100 | 100 |
+| FCP | 1.7 s | 0.4 s |
+| LCP | 2.8 s | 0.6 s |
+| Bloqueo total | 990 ms | 220 ms |
+| CLS | 0.001 | 0 |
+
+El 3D y la preparación de animaciones siguen siendo el principal coste de carga móvil. Las cifras son mediciones locales, no datos de usuarios reales ni garantía de posicionamiento. La auditoría se ejecutó antes de los últimos ajustes de cámara en móviles de poca altura, fechas de tablet y recorte de galería; después se recompiló y revisó visualmente.
+
+Informes `artifacts/lighthouse-mobile.html` y `artifacts/lighthouse-desktop.html`, excluidos de Git. Windows emitió el aviso conocido al liberar el perfil temporal; ambos informes son válidos. El formulario, el PDF y los datos profesionales no se modificaron en esta iteración; sus comprobaciones anteriores se conservan debajo.
+
+---
+
+# Historial — cuarta versión
 
 26 de septiembre de 2026. Vite + TypeScript, GSAP, Lenis y escena original de Blender.
 

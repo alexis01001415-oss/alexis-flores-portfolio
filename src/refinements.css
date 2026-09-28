@@ -1,0 +1,264 @@
+/* Typography follows one scale at each breakpoint. Icons and the af. wordmark
+   keep their own glyph metrics. */
+:root {
+  --tracking: 1.5px;
+  --heading-tracking: 1.5px;
+  --heading-leading: 1.2;
+  --body-leading: 1.4;
+}
+body, button, input, select, textarea {
+  letter-spacing: var(--tracking);
+  line-height: var(--body-leading);
+}
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: var(--heading-tracking);
+  line-height: var(--heading-leading);
+}
+p, li { line-height: var(--body-leading); }
+.hero-statement > p:first-child { line-height: var(--heading-leading); }
+.hero-summary { max-width: 38ch; }
+.hero-statement { width: min(33%, 400px); }
+.hero-name .eyebrow { max-width: 46ch; }
+.closing-word { font-size: clamp(64px, 13vw, 210px); }
+.contact-email { overflow-wrap: anywhere; }
+.career-heading { align-items: flex-start; }
+.career-heading > div { padding-top: 16px; flex-shrink: 0; }
+.career-heading h2 { font-size: clamp(48px, 6vw, 96px); }
+.about-copy h2 { font-size: clamp(46px, 5vw, 78px); }
+.chapter h2 { font-size: clamp(44px, 5vw, 78px); }
+.projects-heading h2 { font-size: clamp(52px, 6.1vw, 100px); }
+
+/* A large edition stamp, aligned to the desk rather than an added panel. */
+.hero .hero-year {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding-top: 12px;
+}
+.hero .hero-year::before {
+  content: '';
+  width: 48px;
+  height: 6px;
+  background: var(--red);
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.hero-year-label {
+  font-size: clamp(17px, 1.7vw, 27px);
+  font-weight: 700;
+  letter-spacing: var(--tracking);
+}
+.hero .hero-year strong {
+  font-size: clamp(96px, 10.8vw, 170px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: var(--heading-tracking);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.hero .hero-year strong span { font-size: 16px; top: 10px; margin-left: 8px; }
+.hero-bottom { bottom: 8px; }
+.journey:not(.hero-is-visible) .stage-grain { animation-play-state: paused; }
+
+/* Low-contrast analogue texture belongs only to the hero. No flashing frames. */
+.hero { overflow: clip; }
+.hero > .stage-grain {
+  inset: -8%;
+  width: 116%;
+  height: 116%;
+  opacity: .11;
+  background-size: 150px 150px;
+  mix-blend-mode: soft-light;
+  animation: analogue-grain .7s steps(1) infinite;
+}
+.hero > .stage-grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: .2;
+  background: repeating-linear-gradient(0deg, transparent 0 3px, #f2eae330 3px 4px);
+}
+@keyframes analogue-grain {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -3%); }
+  60% { transform: translate(-2%, -1%); }
+  80% { transform: translate(3%, 2%); }
+}
+.journey-transition { height: 140svh; position: relative; pointer-events: none; }
+.journey.is-transitioning .scene-bottom-line { opacity: 0; }
+.journey.is-transitioning .stage-vignette { opacity: 0; }
+
+/* Keep the rail fixed; give each action a visible surface on hover and focus. */
+.header-brand, .menu-toggle, .rail-contact {
+  position: relative;
+  isolation: isolate;
+  transition: color .3s ease, transform .3s ease;
+  transform: translateZ(0);
+  will-change: transform;
+}
+.header-brand { min-width: 64px; text-align: center; padding: 8px 8px 8px 4px; }
+.header-brand::before, .menu-toggle::before, .rail-contact::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--paper);
+  clip-path: polygon(0 100%, 0 100%, 0 100%, 0 100%);
+  transition: clip-path .45s cubic-bezier(.2,.75,.2,1);
+}
+.header-brand:is(:hover, :focus-visible),
+.menu-toggle:is(:hover, :focus-visible),
+.rail-contact:is(:hover, :focus-visible) { color: var(--ink); }
+.header-brand:is(:hover, :focus-visible)::before,
+.menu-toggle:is(:hover, :focus-visible)::before,
+.rail-contact:is(:hover, :focus-visible)::before {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+.header-brand:is(:hover, :focus-visible) { transform: rotate(-5deg); }
+.menu-toggle .icon, .rail-contact .icon { transition: transform .35s ease; }
+.menu-toggle:is(:hover, :focus-visible) .icon { transform: rotate(90deg); }
+.rail-contact:is(:hover, :focus-visible) .icon { transform: translateY(-3px); }
+
+.nav-links > a, .projects-disclosure > button {
+  isolation: isolate;
+  position: relative;
+  overflow: hidden;
+  padding: 8px 16px;
+  border-bottom: 1px solid #13121122;
+  transition: color .35s, padding-left .45s cubic-bezier(.2,.75,.2,1);
+}
+.nav-links > a::before, .projects-disclosure > button::before {
+  content: '';
+  position: absolute;
+  inset: 0 -10% 0 0;
+  background: linear-gradient(105deg, var(--button) 0 87%, #990028 87%);
+  clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+  z-index: -1;
+  transition: clip-path .5s cubic-bezier(.2,.75,.2,1);
+}
+.nav-links > a:is(:hover, :focus-visible),
+.projects-disclosure > button:is(:hover, :focus-visible) {
+  color: var(--paper);
+  padding-left: 28px;
+}
+.nav-links > a:is(:hover, :focus-visible)::before,
+.projects-disclosure > button:is(:hover, :focus-visible)::before {
+  clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+}
+.projects-dropdown a, .nav-bottom a {
+  position: relative;
+  isolation: isolate;
+  padding: 10px 12px;
+  transition: color .3s ease;
+}
+.projects-dropdown a::before, .nav-bottom a::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .4s cubic-bezier(.2,.75,.2,1);
+}
+.projects-dropdown a:is(:hover, :focus-visible),
+.nav-bottom a:is(:hover, :focus-visible) { color: var(--paper); }
+.projects-dropdown a:is(:hover, :focus-visible)::before,
+.nav-bottom a:is(:hover, :focus-visible)::before { transform: scaleX(1); }
+.text-link { position: relative; }
+.text-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 3px;
+  background: var(--red);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .35s ease;
+}
+.text-link:is(:hover, :focus-visible)::after { transform: scaleX(1); }
+.text-link .icon, .nav-bottom .icon { transition: transform .35s ease; }
+.text-link:is(:hover, :focus-visible) .icon,
+.nav-bottom a:is(:hover, :focus-visible) .icon { transform: translateY(3px); }
+
+.rail-progress { width: 5px; }
+.scene-meter { width: clamp(140px, 17vw, 240px); height: 5px; background: #8885; }
+.scene-meter i { height: 5px; }
+.scene-bottom-line {
+  left: auto;
+  width: clamp(230px, 20vw, 300px);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+}
+.scene-bottom-line .scene-meter { width: 100%; grid-column: 1 / -1; }
+.scene-bottom-line #scene-label { text-align: right; font-size: 9px; }
+.gallery-progress { height: 6px; }
+.gallery-progress i { height: 6px; }
+@media (min-width: 801px) {
+  .chapter-outro h2 { font-size: clamp(40px, 4.3vw, 68px); }
+}
+
+@media (max-width: 1100px) {
+  :root { --tracking: 1px; --heading-tracking: 1px; --body-leading: 1.45; }
+  .hero .hero-year strong { font-size: 100px; }
+  .hero-year-label { font-size: 19px; }
+  .hero-statement { width: 35%; }
+  .chapter h2 { font-size: clamp(40px, 5vw, 60px); }
+  .career-heading h2 { font-size: 5.8vw; }
+}
+@media (max-width: 800px) {
+  :root { --tracking: .6px; --heading-tracking: .8px; }
+  .header-brand { min-width: 52px; padding: 0 6px 0 2px; }
+  .hero-statement { width: auto; bottom: 180px; }
+  .hero .hero-year strong { font-size: 88px; }
+  .hero-year-label { font-size: 17px; }
+  .hero .hero-year::before { height: 4px; width: 32px; }
+  .hero .hero-year { padding-top: 8px; }
+  .rail-progress { width: 100%; height: 4px; }
+  .scene-meter { height: 4px; }
+  .scene-bottom-line { display: none; }
+  .hero-summary { max-width: none; }
+  .about-copy h2 { font-size: 42px; }
+  .chapter h2 { font-size: clamp(38px, 7vw, 56px); }
+  .career-heading h2 { font-size: 48px; }
+  .career-heading > div { padding-top: 0; }
+  .journey-transition { height: 110svh; }
+  .nav-links > a, .projects-disclosure > button { padding: 8px; }
+  .nav-links > a:is(:hover, :focus-visible),
+  .projects-disclosure > button:is(:hover, :focus-visible) { padding-left: 16px; }
+}
+@media (max-width: 560px) {
+  :root { --tracking: .35px; --heading-tracking: .6px; --body-leading: 1.5; }
+  .hero-statement { bottom: 170px; }
+  .hero .hero-year strong { font-size: 80px; }
+  .hero-year-label { font-size: 15px; }
+  .hero .hero-year strong span { font-size: 12px; margin-left: 3px; top: 6px; }
+  .hero-bottom { bottom: 20px; }
+  .hero-summary { max-width: 38ch; }
+  .about-copy h2 { font-size: 48px; }
+  .projects-heading h2 { font-size: 44px; }
+  .closing-word { font-size: 15vw; }
+  .career-heading h2 { font-size: 44px; }
+  .nav-bottom { letter-spacing: .35px; }
+}
+@media (max-width: 380px) {
+  .hero .hero-year strong { font-size: 66px; }
+  .hero-year-label { font-size: 13px; }
+  .hero-statement { bottom: 154px; }
+  .hero-actions .button { gap: 10px; }
+  .hero-actions .text-link { font-size: 13px; }
+  .about-copy h2 { font-size: 40px; }
+  .projects-heading h2, .career-heading h2 { font-size: 38px; }
+  .chapter h2 { font-size: 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero > .stage-grain { animation: none; }
+  .journey-transition { height: 24px; }
+  .header-brand:is(:hover, :focus-visible) { transform: none; }
+}
+.scene-fallback .journey-transition { height: 24px; }
