@@ -9,17 +9,18 @@ const escape = text => text.replaceAll('&', '&amp;').replaceAll('"', '&quot;').r
 const schema = {
   '@context': 'https://schema.org', '@graph': [
     {
-      '@type': 'Person', '@id': `${site}#alexis`, name: 'Félix Alexis Flores Rojas', alternateName: 'Alexis Flores', url: site,
+      '@type': 'Person', '@id': `${site}#alexis`, name: 'Felix Alexis Flores Rojas', alternateName: 'Alexis Flores', url: site,
       sameAs: [
         'https://www.linkedin.com/in/felix-alexis-flores-rojas-94a885265/',
         'https://www.behance.net/alexisflores01001415',
         'https://github.com/alexis01001415-oss',
       ],
-      jobTitle: 'Diseñador UX/UI y desarrollador front-end',
-      description: 'Diseño de interfaces web, investigación de usuarios, prototipos en Figma y desarrollo con HTML, CSS, JavaScript y WordPress.',
+      jobTitle: 'Diseñador UX/UI',
+      description: 'Diseño de productos digitales, investigación de usuarios, prototipos en Figma, diseño gráfico, Blender e inteligencia artificial aplicada. Dominio de HTML y CSS; JavaScript básico.',
+      knowsAbout: ['Diseño UX/UI', 'Figma', 'Diseño gráfico', 'Blender', 'Framer', 'WordPress', 'Webflow', 'HTML', 'CSS', 'Prompt engineering'],
     },
     { '@type': 'WebSite', '@id': `${site}#website`, url: site, name: 'Alexis Flores — Portafolio', inLanguage: 'es-MX', author: { '@id': `${site}#alexis` } },
-    { '@type': 'ProfilePage', '@id': `${site}#profile`, url: site, name: 'Félix Alexis Flores Rojas — Diseño UX/UI y desarrollo front-end', description: 'Portafolio profesional con proyectos web, experiencia laboral, competencias y CV descargable.', inLanguage: 'es-MX', mainEntity: { '@id': `${site}#alexis` } },
+    { '@type': 'ProfilePage', '@id': `${site}#profile`, url: site, name: 'Felix Alexis Flores Rojas — Diseño UX/UI', description: 'Portafolio profesional con proyectos, experiencia laboral, competencias y CV descargable.', inLanguage: 'es-MX', mainEntity: { '@id': `${site}#alexis` } },
   ],
 };
 // JSON-LD is inert data. Hash it in CSP so parsers and browsers accept the exact block.

@@ -16,7 +16,7 @@ const poses:Pose[] = [
 const smooth=(x:number)=>x*x*(3-2*x);
 const mix=THREE.MathUtils.lerp;
 
-export async function createExperience(host:HTMLElement, footer:HTMLElement, options:Options){
+export async function createExperience(host:HTMLElement, options:Options){
   const showcaseHost=document.querySelector<HTMLElement>('#showcase-canvas');
   const scene=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(40,1,.1,100);
@@ -78,15 +78,15 @@ export async function createExperience(host:HTMLElement, footer:HTMLElement, opt
     const screenLocalCenter=new THREE.Vector3();
     if(screen){screen.geometry.computeBoundingBox();screen.geometry.boundingBox!.getCenter(screenLocalCenter);}
     function screenDesign(mode:number){const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=628;const ctx=canvas.getContext('2d')!;
-      ctx.fillStyle=mode===1?'#F2EAE3':'#131211';ctx.fillRect(0,0,1024,628);ctx.fillStyle=mode===1?'#131211':'#F2EAE3';ctx.font='500 18px Yantramanav';ctx.fillText(['ALEXIS FLORES / UX · UI','AF / DISEÑO DE INTERFACES','AF / DESARROLLO FRONT-END'][mode],52,54);ctx.fillText(`0${mode+1}`,930,54);
-      ctx.font='700 94px Yantramanav';ctx.fillText(['Diseño UX/UI','Interfaces','Front-end'][mode],52,225);ctx.fillText(['y front-end.','y prototipos.','responsive.'][mode],52,320);
+      ctx.fillStyle=mode===1?'#F2EAE3':'#131211';ctx.fillRect(0,0,1024,628);ctx.fillStyle=mode===1?'#131211':'#F2EAE3';ctx.font='500 18px Yantramanav';ctx.fillText(['ALEXIS FLORES / UX · UI','AF / EXPLORACIÓN VISUAL','AF / DISEÑO APLICADO'][mode],52,54);ctx.fillText(`0${mode+1}`,930,54);
+      ctx.font='700 94px Yantramanav';ctx.fillText(['Diseño UX/UI','Ideas, forma','Del prototipo'][mode],52,225);ctx.fillText(['con intención.','y movimiento.','al producto.'][mode],52,320);
       ctx.strokeStyle=mode===1?'#13121130':'#f2eae340';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(52,380);ctx.lineTo(972,380);ctx.stroke();
-      if(mode===1){ctx.fillStyle='#131211';ctx.fillRect(52,430,260,126);ctx.fillStyle='#D0C9C3';ctx.fillRect(332,430,260,126);ctx.fillStyle='#FF073A';ctx.fillRect(612,430,360,126);}else{ctx.fillStyle='#D0C9C3';ctx.font='400 24px Yantramanav';ctx.fillText(mode===0?'INVESTIGACIÓN · PROTOTIPADO · DESARROLLO':'HTML · CSS · JAVASCRIPT',52,439);ctx.fillStyle='#FF073A';ctx.fillRect(52,495,8,62);ctx.fillStyle='#F2EAE3';ctx.font='500 26px Yantramanav';ctx.fillText(mode===0?'Portafolio profesional / 2026':'WordPress · Framer · Webflow',82,535);}
+      if(mode===1){ctx.fillStyle='#131211';ctx.fillRect(52,430,260,126);ctx.fillStyle='#D0C9C3';ctx.fillRect(332,430,260,126);ctx.fillStyle='#FF073A';ctx.fillRect(612,430,360,126);}else{ctx.fillStyle='#D0C9C3';ctx.font='400 24px Yantramanav';ctx.fillText(mode===0?'INVESTIGAR · DISEÑAR · PROBAR':'FIGMA · HTML · CSS',52,439);ctx.fillStyle='#FF073A';ctx.fillRect(52,495,8,62);ctx.fillStyle='#F2EAE3';ctx.font='500 26px Yantramanav';ctx.fillText(mode===0?'Portafolio profesional / 2026':'Framer · WordPress · Webflow',82,535);}
       const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;texture.flipY=false;return texture;
     }
     if(screen){screenMaps.push(screenDesign(0),screenDesign(1),screenDesign(2));}
-    let progress=0,paused=false,isFooter=false,isShowcase=false,light=false,visible=true,raf=0,disposed=false,ready=false,contextLost=false,pointerX=0,pointerY=0,currentX=0,currentY=0;
-    let footerProgress=0,transitionProgress=0,showcaseIndex=0,lastShowcaseIndex=-1;
+    let progress=0,paused=false,isShowcase=false,light=false,visible=true,raf=0,disposed=false,ready=false,contextLost=false,pointerX=0,pointerY=0,currentX=0,currentY=0;
+    let transitionProgress=0,showcaseIndex=0,lastShowcaseIndex=-1;
     const showcaseFiles=['curiosity','macloud','gatical'];
     const showcaseTextures=new Map<number,THREE.Texture>();
     const requestedTextures=new Set<number>();
@@ -130,16 +130,16 @@ export async function createExperience(host:HTMLElement, footer:HTMLElement, opt
     }
     const dark=new THREE.Color('#131211'),paper=new THREE.Color('#F2EAE3'),background=new THREE.Color();
     const target=new THREE.Vector3();
-    function activeHost(){return isFooter?footer:isShowcase&&showcaseHost?showcaseHost:host;}
+    function activeHost(){return isShowcase&&showcaseHost?showcaseHost:host;}
     function mountCanvas(){const parent=activeHost();if(renderer.domElement.parentElement!==parent){parent.append(renderer.domElement);resize();}}
     function resize(){const parent=activeHost();const w=parent.clientWidth,h=parent.clientHeight;if(w&&h){camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);requestRender();}}
     function apply(){
       const mobile=window.innerWidth<=800;
       const p=paused?0:progress;
-      const transition=paused||isShowcase||isFooter?0:transitionProgress;
-      if(isShowcase&&!isFooter&&showcaseTextures.has(showcaseIndex))lastShowcaseIndex=showcaseIndex;
-      const showcaseTexture=isShowcase&&!isFooter?showcaseTextures.get(lastShowcaseIndex):undefined;
-      const nextScreen=showcaseTexture?3+lastShowcaseIndex:isFooter?2:isShowcase?0:p>.79?2:p>.50?1:0;
+      const transition=paused||isShowcase?0:transitionProgress;
+      if(isShowcase&&showcaseTextures.has(showcaseIndex))lastShowcaseIndex=showcaseIndex;
+      const showcaseTexture=isShowcase?showcaseTextures.get(lastShowcaseIndex):undefined;
+      const nextScreen=showcaseTexture?3+lastShowcaseIndex:isShowcase?0:p>.79?2:p>.50?1:0;
       if(screenMaps.length&&screenMode!==nextScreen){const mat=screen.material as THREE.MeshBasicMaterial;mat.map=showcaseTexture??screenMaps[nextScreen];mat.needsUpdate=true;screenMode=nextScreen;}
       if(transitionScreen){transitionScreen.visible=transition>0;transitionMaterial.opacity=smooth(THREE.MathUtils.clamp((transition-.48)/.4,0,1));}
       let i=0;while(i<poses.length-2&&p>poses[i+1].p)i++;
@@ -150,8 +150,8 @@ export async function createExperience(host:HTMLElement, footer:HTMLElement, opt
       laptop.rotation.set(0,v('ry')*(mobile?.6:1),v('rz'));
       laptop.scale.setScalar(1);
       lid.rotation.x=THREE.MathUtils.degToRad(paused?-105:v('lid'));
-      desk.position.y=v('desk');desk.visible=!isFooter&&!isShowcase;
-      props.forEach((obj,index)=>{obj.visible=!isFooter&&!isShowcase&&p<.29;const start=propPositions[index];const f=smooth(Math.min(1,p/.27));obj.position.set(start.x*(1+f*4),start.y+f*(5+index),start.z-f*(3+index));obj.rotation.y=f*(index%2?-1.5:1.3);obj.rotation.z=f*(index%2?.3:-.3)});
+      desk.position.y=v('desk');desk.visible=!isShowcase;
+      props.forEach((obj,index)=>{obj.visible=!isShowcase&&p<.29;const start=propPositions[index];const f=smooth(Math.min(1,p/.27));obj.position.set(start.x*(1+f*4),start.y+f*(5+index),start.z-f*(3+index));obj.rotation.y=f*(index%2?-1.5:1.3);obj.rotation.z=f*(index%2?.3:-.3)});
       for(let c=0;c<3;c++){camera.position.setComponent(c,mix(a.camera[c],b.camera[c],t));target.setComponent(c,mix(a.target[c],b.target[c],t));}
       if(mobile){
         camera.position.set(mix(.4,0,float),mix(6.3,4.1,float),mix(13,12.8,float));
@@ -188,7 +188,7 @@ export async function createExperience(host:HTMLElement, footer:HTMLElement, opt
         background.copy(dark).lerp(paper,smooth(THREE.MathUtils.clamp((transition-.8)/.2,0,1)));
         desk.visible=false;props.forEach(obj=>{obj.visible=false});
       }
-      if(isShowcase&&!isFooter){
+      if(isShowcase){
         scene.background=null;scene.environmentIntensity=.95;
         laptop.position.set(mobile?0:1.5,mobile?.2:.25,0);
         laptop.rotation.set(.015,-.05,.003);
@@ -197,18 +197,17 @@ export async function createExperience(host:HTMLElement, footer:HTMLElement, opt
         camera.position.set(0,mobile?3.6:3.1,mobile?9.6:7.7);
         target.set(0,1.15,0);camera.fov=mobile?43:38;
       }
-      if(isFooter){scene.background=null;laptop.position.set(0,.4,0);laptop.rotation.set(.03,mix(-.6,-.22,paused?.5:footerProgress),-.11);laptop.scale.setScalar(1);lid.rotation.x=THREE.MathUtils.degToRad(-105);camera.position.set(.3,3.1,7.5);target.set(0,1,0);camera.fov=38;}
       const pointerStrength=mobile||paused||isShowcase?0:1-smooth(Math.min(1,transition/.36));
       camera.position.x+=currentX*.22*pointerStrength;camera.position.y+=currentY*.10*pointerStrength;camera.lookAt(target);camera.updateProjectionMatrix();
     }
-    function render(){raf=0;if(!ready||disposed||contextLost||document.hidden||(!visible&&!isShowcase&&!isFooter))return;currentX=mix(currentX,pointerX,.09);currentY=mix(currentY,pointerY,.09);apply();renderer.render(scene,camera);if(renderer.getContext().isContextLost())return;renderer.domElement.style.visibility='';document.querySelector('.journey')?.classList.add('scene-ready');markShowcaseReady(isShowcase&&!isFooter&&lastShowcaseIndex>=0&&Boolean(screen));if(Math.abs(currentX-pointerX)+Math.abs(currentY-pointerY)>.003)requestRender();}
+    function render(){raf=0;if(!ready||disposed||contextLost||document.hidden||(!visible&&!isShowcase))return;currentX=mix(currentX,pointerX,.09);currentY=mix(currentY,pointerY,.09);apply();renderer.render(scene,camera);if(renderer.getContext().isContextLost())return;renderer.domElement.style.visibility='';document.querySelector('.journey')?.classList.add('scene-ready');markShowcaseReady(isShowcase&&lastShowcaseIndex>=0&&Boolean(screen));if(Math.abs(currentX-pointerX)+Math.abs(currentY-pointerY)>.003)requestRender();}
     function requestRender(){if(!raf&&!disposed&&!contextLost)raf=requestAnimationFrame(render);}
     resize();apply();options.progress(94,'Preparando luces y reflejos');
     await renderer.compileAsync(scene,camera);
     if(options.signal.aborted)throw new DOMException('Aborted','AbortError');
     ready=true;
     render();
-    const observer=new ResizeObserver(resize);observer.observe(host);observer.observe(footer);if(showcaseHost)observer.observe(showcaseHost);
+    const observer=new ResizeObserver(resize);observer.observe(host);if(showcaseHost)observer.observe(showcaseHost);
     const visibility=()=>{if(!document.hidden)requestRender()};document.addEventListener('visibilitychange',visibility);
     return {
       setProgress(value:number){progress=value;requestRender()},
@@ -217,14 +216,13 @@ export async function createExperience(host:HTMLElement, footer:HTMLElement, opt
       setPaused(value:boolean){paused=value;requestRender()},
       setLight(value:boolean){light=value;requestRender()},
       setVisible(value:boolean){visible=value;if(value)requestRender()},
-      setFooter(value:boolean,p=0){footerProgress=p;isFooter=value;mountCanvas();if(value)markShowcaseReady(false);requestRender()},
       setShowcase(active:boolean,_p=0,index=0){
         isShowcase=active&&Boolean(showcaseHost);
         showcaseIndex=THREE.MathUtils.clamp(Math.round(index),0,showcaseFiles.length-1);
         if(isShowcase)showcaseFiles.forEach((_,index)=>loadShowcaseTexture(index));
-        if(!isShowcase||isFooter||lastShowcaseIndex<0)markShowcaseReady(false);
+        if(!isShowcase||lastShowcaseIndex<0)markShowcaseReady(false);
         mountCanvas();requestRender();
-        return isShowcase&&!isFooter&&lastShowcaseIndex>=0&&Boolean(screen);
+        return isShowcase&&lastShowcaseIndex>=0&&Boolean(screen);
       },
       dispose(){disposed=true;cancelAnimationFrame(raf);observer.disconnect();document.removeEventListener('visibilitychange',visibility);markShowcaseReady(false);screenMaps.forEach(texture=>texture.dispose());showcaseTextures.forEach(texture=>texture.dispose());if(!transitionScreen)transitionMaterial.dispose();cleanup()},
     };

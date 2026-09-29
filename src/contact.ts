@@ -1,5 +1,5 @@
-/** Web3Forms keys are public identifiers. Add the owner's key here when supplied. */
-export const contactConfig = { accessKey: '' };
+/** Web3Forms access keys are public form identifiers, not server secrets. */
+export const contactConfig = { accessKey: '600ba05c-f15a-454c-be91-2c6794724708' };
 
 export function setupContact(form: HTMLFormElement) {
   const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;

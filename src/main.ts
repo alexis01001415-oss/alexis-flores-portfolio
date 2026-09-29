@@ -4,16 +4,26 @@ import { SplitText } from 'gsap/SplitText';
 import Lenis from 'lenis';
 import { setupPortrait } from './portrait';
 import { setupContact } from './contact';
+import { setupFooterMotion } from './footer';
 import type { Experience } from './scene';
 import './gallery.css';
 import './timeline.css';
 import './refinements.css';
+import './expertise.css';
+import './branding.css';
+import './footer.css';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
+let skillsRefresh = 0;
+document.querySelectorAll<HTMLDetailsElement>('.skill-item').forEach(item => {
+  item.addEventListener('toggle', () => {
+    cancelAnimationFrame(skillsRefresh);
+    skillsRefresh = requestAnimationFrame(() => ScrollTrigger.refresh());
+  });
+});
 const $ = <T extends Element = HTMLElement>(selector: string) => document.querySelector<T>(selector)!;
 const $$ = <T extends Element = HTMLElement>(selector: string) => Array.from(document.querySelectorAll<T>(selector));
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-const clamp = (v: number) => Math.max(0, Math.min(1, v));
 let experience: Experience | undefined, lenis: Lenis | undefined;
 let motion: gsap.Context | undefined, galleryTrigger: ScrollTrigger | undefined;
 let loaded = false, menuOpen = false, journeyProgress = 0, transitionProgress = 0, galleryProgress = 0, galleryActive = false;
@@ -107,15 +117,12 @@ $$<HTMLAnchorElement>('a[href^="#"]').forEach(link => link.addEventListener('cli
 $$('[data-project-index]').forEach(button => button.addEventListener('click', () => showProject(Number(button.dataset.projectIndex))));
 
 function syncScene() {
-  const hero = $('.journey').getBoundingClientRect(), foot = $('.contact').getBoundingClientRect();
+  const hero = $('.journey').getBoundingClientRect();
   const stage = $('.showcase-window'), stageBounds = stage.getBoundingClientRect();
-  // Prepare the laptop before it enters view and keep it in place through both
-  // ends of the pin. The footer borrows the renderer once the gallery leaves.
+  // Keep the laptop stable through both ends of the gallery pin.
   galleryActive = stage.classList.contains('is-pinned-gallery') && stageBounds.top < innerHeight + 400 && stageBounds.bottom > 0;
-  const footerActive = !galleryActive && foot.top < innerHeight && foot.bottom > 0;
   experience?.setShowcase(galleryActive, galleryProgress, Math.round(galleryProgress * (projectSlides.length - 1)));
-  experience?.setFooter(footerActive, clamp((innerHeight - foot.top) / (innerHeight + foot.height)));
-  experience?.setVisible(footerActive || galleryActive || (hero.top < innerHeight && hero.bottom > 0));
+  experience?.setVisible(galleryActive || (hero.top < innerHeight && hero.bottom > 0));
 }
 const lenisTick = (seconds: number) => lenis?.raf(seconds * 1000);
 function setupMotion() {
@@ -141,7 +148,7 @@ function setupMotion() {
       $('.scene-meter i').style.transform = `scaleX(${self.progress})`;
       const chapter = Math.min(3, Math.floor(self.progress * 3.5));
       $('#scene-index').textContent = `0${chapter + 1} / 04`;
-      $('#scene-label').textContent = ['UX/UI & FRONT-END', 'EXPERIENCIA DE USUARIO', 'DESARROLLO WEB', 'PRODUCTOS DIGITALES'][chapter];
+      $('#scene-label').textContent = ['DISEÑO UX/UI', 'CURIOSIDAD', 'EXPLORACIÓN VISUAL', 'APRENDIZAJE CONTINUO'][chapter];
     }, onToggle: syncScene });
     ScrollTrigger.create({ trigger: '.hero', start: 'top bottom', end: 'bottom top', onToggle: self => $('.journey').classList.toggle('hero-is-visible', self.isActive) });
     const transition = document.querySelector<HTMLElement>('.journey-transition');
@@ -153,8 +160,10 @@ function setupMotion() {
       }, onToggle: syncScene });
       if (!reduced.matches) gsap.to('.chapter-outro .chapter-copy', { opacity: 0, y: -48, ease: 'none', scrollTrigger: { trigger: transition, start: 'top 90%', end: 'top 40%', scrub: true } });
     }
-    ScrollTrigger.create({ trigger: '.contact', start: 'top bottom', end: 'bottom top', onUpdate: syncScene, onToggle: syncScene });
-    if (reduced.matches) return;
+    if (reduced.matches) {
+      gsap.context(() => setupFooterMotion(true));
+      return;
+    }
     gsap.context(splitContext => {
       const splits: SplitText[] = [];
       let disposed = false;
@@ -236,6 +245,8 @@ function setupMotion() {
       galleryProgress = tween.progress(); update();
       return restoreGallery;
     });
+    // Measure the footer after the gallery has inserted its pin spacing.
+    gsap.context(() => setupFooterMotion(false));
   });
   ScrollTrigger.refresh(); scrollState(); syncScene();
 }
@@ -268,7 +279,7 @@ async function boot() {
   try {
     const [module] = await Promise.all([import('./scene'), document.fonts.ready]);
     if (abort.signal.aborted) return;
-    experience = await module.createExperience($('#experience-canvas'), $('#footer-canvas'), { progress: () => {}, signal: abort.signal });
+    experience = await module.createExperience($('#experience-canvas'), { progress: () => {}, signal: abort.signal });
     experience.setProgress(journeyProgress); experience.setPaused(reduced.matches);
     experience.setTransition(transitionProgress);
     syncScene(); await finishLoading(true);

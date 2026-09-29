@@ -1,0 +1,22 @@
+/* Keep the two initials distinct at every size without changing the mark. */
+.header-brand {
+  letter-spacing: -1px;
+}
+
+.loader-mark {
+  letter-spacing: -0.02em;
+}
+
+.portrait-corner {
+  letter-spacing: -1px;
+}
+
+/* Show the full, unretouched portrait in its original proportions. */
+.about-portrait {
+  aspect-ratio: 640 / 641;
+}
+
+.about-portrait img {
+  object-position: 50% 50%;
+  filter: none;
+}

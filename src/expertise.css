@@ -1,0 +1,118 @@
+/* The skills index is readable without JavaScript and operable by keyboard. */
+.expertise {
+  display: grid;
+  grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr);
+  gap: clamp(40px, 6vw, 112px);
+  margin-top: 120px;
+  padding-top: 56px;
+  border-top: 1px solid #13121145;
+  align-items: start;
+}
+.expertise-intro { position: sticky; top: 48px; }
+.expertise-intro h3 { font-size: clamp(40px, 4.5vw, 72px); margin: 32px 0; }
+.expertise-intro h3 em { font-style: normal; font-weight: 400; }
+.expertise-intro p { max-width: 29ch; font-size: 18px; }
+.expertise-hint { display: flex; align-items: center; gap: 24px; margin-top: 40px; font-size: 12px; }
+.expertise-hint .icon { color: var(--button); }
+.skill-item { border-top: 1px solid #13121140; }
+.skill-item:last-child { border-bottom: 1px solid #13121140; }
+.skill-item summary {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 40px;
+  gap: 16px;
+  align-items: center;
+  padding: 28px 16px;
+  cursor: pointer;
+  list-style: none;
+  position: relative;
+  isolation: isolate;
+}
+.skill-item summary::-webkit-details-marker { display: none; }
+.skill-item summary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: #13121108;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .4s ease;
+}
+.skill-item summary:is(:hover, :focus-visible)::before { transform: scaleX(1); }
+.skill-number { font-size: 12px; color: var(--button); align-self: start; padding-top: 7px; }
+.skill-name { font-size: clamp(24px, 2.5vw, 38px); font-weight: 500; line-height: var(--heading-leading); }
+.skill-name small { display: block; font-size: 10px; line-height: var(--body-leading); font-weight: 500; margin-top: 8px; }
+.skill-item summary > .icon {
+  width: 40px; height: 40px; display: grid; place-items: center;
+  border: 1px solid #13121140; border-radius: 50%;
+  transition: transform .35s, color .35s, background .35s;
+}
+.skill-item[open] summary > .icon { transform: rotate(45deg); background: var(--ink); color: var(--paper); }
+.skill-item[open] .skill-name { color: var(--button); }
+.skill-detail { padding: 0 16px 32px 64px; animation: skill-reveal .4s ease both; }
+.skill-detail > p { font-size: 18px; max-width: 48ch; }
+.skill-detail ul { margin: 24px 0; padding-left: 18px; }
+.skill-detail li { margin: 12px 0; font-size: 16px; }
+.skill-detail li::marker { color: var(--button); }
+.skill-toolset { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+.skill-toolset span { padding: 8px 12px; border: 1px solid #13121135; font-size: 12px; }
+.skill-levels { margin: 24px 0; }
+.skill-levels > div { padding: 12px 0; border-bottom: 1px solid #13121125; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.skill-levels dt { font-weight: 500; }
+.skill-levels dd { margin: 0; color: #514b46; }
+@keyframes skill-reveal { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.career-card li strong { display: block; margin-bottom: 4px; font-weight: 700; }
+.career-earlier { display: grid; grid-template-columns: .7fr 1.3fr; gap: 64px; padding: 40px 0; border-top: 1px solid #13121140; }
+.career-earlier h3 { font-size: 32px; margin: 12px 0 8px; }
+.career-earlier p { max-width: 64ch; }
+.career-earlier > div:last-child { align-self: center; }
+.education-record { border-top: 1px solid #13121145; padding-top: 48px; margin-top: 56px; }
+.education-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 32px; margin-bottom: 32px; }
+.education-heading h3 { font-size: clamp(28px, 3vw, 44px); }
+.education-heading span { font-size: 11px; }
+.education-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 56px; }
+.education-entry { padding: 24px 0 32px; border-top: 1px solid #13121125; }
+.education-entry h4 { font-size: 24px; margin-bottom: 12px; }
+.education-entry p { font-size: 17px; }
+.education-entry time { display: block; margin-top: 16px; font-size: 12px; color: #57514c; }
+.education-record > .education-heading:not(:first-child) { margin-top: 56px; }
+
+@media (max-width: 1100px) {
+  .expertise { grid-template-columns: .65fr 1.35fr; gap: 32px; }
+  .skill-item summary { padding: 24px 0; gap: 12px; }
+  .skill-detail { padding-left: 44px; padding-right: 0; }
+}
+@media (max-width: 800px) {
+  .expertise { grid-template-columns: 1fr; margin-top: 80px; padding-top: 40px; }
+  .expertise-intro { position: static; }
+  .expertise-intro h3 { font-size: clamp(44px, 7vw, 64px); margin: 24px 0; }
+  .expertise-intro p { max-width: 48ch; }
+  .expertise-hint { margin-top: 24px; }
+  .skill-name { font-size: 30px; }
+  .career-earlier { gap: 32px; }
+}
+@media (max-width: 560px) {
+  .skill-item summary { grid-template-columns: 24px minmax(0, 1fr) 36px; gap: 8px; }
+  .skill-name { font-size: 25px; }
+  .skill-name small { font-size: 9px; }
+  .skill-item summary > .icon { width: 36px; height: 36px; }
+  .skill-detail { padding-left: 32px; }
+  .skill-detail > p { font-size: 17px; }
+  .skill-levels > div { grid-template-columns: 1fr; gap: 4px; }
+  .skill-toolset span { padding: 6px 8px; font-size: 11px; }
+  .career-earlier, .education-list { grid-template-columns: 1fr; gap: 24px; }
+  .education-heading { flex-direction: column; gap: 8px; }
+  .education-list { gap: 0; }
+  .education-entry h4 { font-size: 23px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skill-detail { animation: none; }
+  .skill-item summary::before, .skill-item summary > .icon { transition: none; }
+}
+@media print {
+  .expertise { display: block; margin-top: 24px; }
+  .expertise-intro { position: static; }
+  .skill-detail { display: block !important; }
+  .skill-item, .education-entry { break-inside: avoid; }
+}

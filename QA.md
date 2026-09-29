@@ -1,4 +1,44 @@
-# Verificación — quinta versión
+# Verificación — sexta versión
+
+28 de septiembre de 2026. Perfil UX/UI, identidad, formación completa y contacto.
+
+## Contenido y documentos
+
+- Nombre sin acento: **Felix Alexis Flores Rojas**, también en título del PDF, metadatos y datos estructurados.
+- UX/UI como especialidad principal. HTML/CSS con dominio avanzado y JavaScript básico diferenciados; Figma, Framer, WordPress, Webflow, Blender, diseño gráfico, ChatGPT, Claude y prompt engineering descritos en seis áreas desplegables.
+- Los tres capítulos del recorrido hablan de curiosidad, exploración visual y aprendizaje. Las pantallas de la laptop también se actualizaron.
+- Formación contrastada con el render guardado del CV original: licenciatura y bachillerato; Google/Coursera, Udemy y cuatro cursos de Platzi. El original ya no estaba disponible en su antigua ruta D:, pero su página renderizada era legible y completa.
+- Cuatro experiencias descritas sin métricas inventadas. El nivel técnico indicado ahora por el propietario prevalece sobre el título de front-end usado en versiones anteriores.
+- CV de dos páginas A4, 25,955 bytes, seis enlaces, texto seleccionable y fuentes incrustadas. Ambas páginas renderizadas con Poppler e inspeccionadas. Copias de output/pdf y public/documents idénticas.
+- Fotografía real de 640×641, convertida a WebP de 36,268 bytes, sin retoque ni recorte. Crédito provisional retirado. Monograma y favicon con mayor separación entre letras.
+
+## Funcionamiento y revisión visual
+
+- Build TypeScript/Vite correcto; aviso de tamaño corresponde al módulo Three.js dinámico.
+- Competencias con details/summary nativos, apertura exclusiva y actualización de ScrollTrigger al cambiar la altura.
+- Footer sin laptop ni renderer 3D, línea luminosa y letras de HABLEMOS ligadas al scroll. Se midieron transformaciones 3D intermedias y alineación final.
+- Reveal fijo cuando cabe completo: 697 px en viewport de 1280×720. En móvil y pantallas cortas usa flujo normal. La superficie fija se oculta hasta su entrada para evitar desplazamiento de diseño durante la carga.
+- Formulario Web3Forms configurado. Doce pruebas de éxito/error/validación con red simulada pasan. Botón habilitado y validación nativa de campos vacíos comprobados en navegador. No se envió un mensaje real, por lo que la recepción en el buzón no está verificada.
+- Revisión responsive de perfil, competencias, trayectoria y contacto; foto con proporciones originales y campos accesibles. El modo de movimiento reducido y limpieza de listeners/observers se revisaron en código.
+
+## Lighthouse local — v6
+
+| Categoría | Móvil | Escritorio |
+| --- | ---: | ---: |
+| Rendimiento | 76 | 96 |
+| Accesibilidad | 100 | 100 |
+| Buenas prácticas | 100 | 100 |
+| SEO | 100 | 100 |
+| FCP | 1.7 s | 0.4 s |
+| LCP | 2.8 s | 0.6 s |
+| Bloqueo total | 680 ms | 130 ms |
+| CLS | 0.001 | 0 |
+
+Una primera medición de escritorio detectó CLS 0.701 al fijar el footer durante la carga. Se corrigió y se repitió esa auditoría. La medición móvil precede a esta corrección específica del footer fijo de escritorio. El 3D sigue siendo el principal coste móvil. Son mediciones de laboratorio, no resultados de usuarios reales ni garantía de ranking.
+
+---
+
+# Historial — quinta versión
 
 28 de septiembre de 2026. Iteración de tipografía, recorrido 3D y galería.
 
