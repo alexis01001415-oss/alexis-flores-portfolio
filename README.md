@@ -1,4 +1,4 @@
-# Felix Alexis Flores Rojas — Portafolio v6
+# Felix Alexis Flores Rojas — Portafolio v7
 
 Portafolio profesional de **Alexis Flores**, diseñador UX/UI de productos digitales. Su especialidad es el diseño de experiencia e interfaces para aplicaciones, plataformas y sitios web; la implementación visual complementa ese trabajo, con dominio de HTML y CSS y nociones básicas de JavaScript. Sitio estático para GitHub Pages con una escena original de Blender, Three.js, GSAP, SplitText y Lenis. Presenta competencias, trayectoria, proyectos web y un CV descargable.
 
@@ -44,11 +44,11 @@ Los iconos, el monograma y las cifras decorativas conservan las métricas propia
 
 ### Máscara fotográfica WebGL
 
-`src/portrait.ts` y `src/portrait.css` añaden una lente orgánica sobre la fotografía que aplica una refracción local suave al mover el cursor. Es un shader WebGL nativo, sin dependencia adicional. No contiene caracteres ASCII ni botones para alternar modos.
+El retrato muestra primero la ilustración cartoon proporcionada por Alexis. Al pasar el cursor, una máscara orgánica revela su fotografía real, sigue el movimiento con una amortiguación suave y desaparece al salir. `src/portrait.ts` y `src/portrait.css` usan un shader WebGL nativo, sin dependencias adicionales ni controles para alternar imágenes.
 
-La fotografía HTML permanece debajo del canvas decorativo y conserva su texto alternativo. El efecto responde al contacto táctil sin impedir el scroll. Limita el DPR a 1.5, solo anima durante interacción y amortiguación, se detiene fuera de pantalla o con la pestaña oculta y deja la imagen estática con `prefers-reduced-motion`. Si WebGL o la textura fallan, permanece la fotografía original.
+La ilustración HTML conserva el texto alternativo. La fotografía se carga de forma diferida y se recorta visualmente con `object-fit: cover`, sin deformarla. El efecto responde al contacto táctil sin impedir el scroll; al enfocar el retrato con teclado se muestra la foto completa dentro del marco. El shader limita el DPR a 1.5, solo anima durante interacción y amortiguación y se detiene fuera de pantalla o con la pestaña oculta. Con movimiento reducido o sin WebGL se usa una máscara CSS; el movimiento reducido elimina la amortiguación y las transiciones.
 
-El retrato es la fotografía real proporcionada por Alexis, convertida a WebP sin retoque ni recorte: **640 × 641 px y 36,268 bytes**. `src/branding.css` conserva sus proporciones y color natural. Se aloja en `public/images/portrait.webp` y su texto alternativo identifica a Felix Alexis Flores Rojas. El crédito de la fotografía provisional se retiró.
+Ambas imágenes son archivos locales WebP: la ilustración completa en `public/images/portrait-cartoon.webp` (**1122 × 1402 px, 98,572 bytes**) y la fotografía original en `public/images/portrait.webp` (**640 × 641 px, 36,268 bytes**). Los archivos conservan el encuadre y color natural de las imágenes proporcionadas; el marco adopta la proporción de la ilustración.
 
 ## Información profesional
 

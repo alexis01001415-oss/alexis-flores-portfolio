@@ -1,3 +1,45 @@
+.about-portrait {
+  --portrait-x: 50%;
+  --portrait-y: 45%;
+  --portrait-radius: 140px;
+  touch-action: pan-y pinch-zoom;
+}
+
+.about-portrait img {
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.about-portrait .portrait-reveal {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(circle var(--portrait-radius) at var(--portrait-x) var(--portrait-y), #000 65%, transparent 100%);
+  mask-image: radial-gradient(circle var(--portrait-radius) at var(--portrait-x) var(--portrait-y), #000 65%, transparent 100%);
+  transition: opacity .22s ease;
+}
+
+.about-portrait.is-revealing:not(.portrait-webgl-ready) .portrait-reveal {
+  opacity: 1;
+}
+
+.about-portrait:focus-visible {
+  outline: 3px solid var(--button);
+  outline-offset: 6px;
+}
+
+.about-portrait:focus-visible .portrait-reveal {
+  opacity: 1;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.about-portrait:focus-visible .portrait-webgl {
+  visibility: hidden;
+}
+
 .about-portrait .portrait-webgl {
   position: absolute;
   z-index: 1;
@@ -17,5 +59,8 @@
 @media (prefers-reduced-motion: reduce), print {
   .about-portrait .portrait-webgl {
     display: none;
+  }
+  .about-portrait .portrait-reveal {
+    transition: none;
   }
 }

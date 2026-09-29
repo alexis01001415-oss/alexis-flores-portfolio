@@ -57,10 +57,11 @@ const fragmentSource = `
   }
 `;
 
-/** An optional, decorative WebGL lens over the original accessible photograph. */
+/** Reveal the real portrait through an organic lens over the illustration. */
 export function setupPortrait(figure: HTMLElement, reduced: MediaQueryList): { dispose(): void } {
-  const photo = figure.querySelector<HTMLImageElement>('img');
-  if (!photo) return { dispose() {} };
+  const photo = figure.querySelector<HTMLImageElement>('.portrait-cartoon');
+  const realPhoto = figure.querySelector<HTMLImageElement>('.portrait-reveal');
+  if (!photo || !realPhoto) return { dispose() {} };
 
   const canvas = document.createElement('canvas');
   canvas.className = 'portrait-webgl';
@@ -92,7 +93,7 @@ export function setupPortrait(figure: HTMLElement, reduced: MediaQueryList): { d
   let targetStrength = 0;
   let velocityX = 0;
   let velocityY = 0;
-  const available = () => inView && !document.hidden && !reduced.matches && !disposed;
+  const available = () => inView && !document.hidden && !disposed;
 
   function stop() {
     cancelAnimationFrame(frame);
@@ -104,6 +105,7 @@ export function setupPortrait(figure: HTMLElement, reduced: MediaQueryList): { d
     stop();
     inside = touchDown = false;
     strength = targetStrength = velocityX = velocityY = 0;
+    figure.classList.remove('is-revealing');
     if (gl && ready) gl.clear(gl.COLOR_BUFFER_BIT);
   }
 
@@ -126,7 +128,7 @@ export function setupPortrait(figure: HTMLElement, reduced: MediaQueryList): { d
 
   function initialize(): boolean {
     if (gl && program) return true;
-    if (failed || !available()) return false;
+    if (failed || reduced.matches || !available()) return false;
     try {
       gl = gl || canvas.getContext('webgl', {
         alpha: true,
@@ -137,7 +139,11 @@ export function setupPortrait(figure: HTMLElement, reduced: MediaQueryList): { d
         preserveDrawingBuffer: false,
         powerPreference: 'low-power',
       });
-      if (!gl || gl.isContextLost()) return false;
+      if (!gl) {
+        fallback();
+        return false;
+      }
+      if (gl.isContextLost()) return false;
       const compile = (type: number, source: string) => {
         const shader = gl!.createShader(type);
         if (!shader) throw new Error('Portrait shader unavailable');
@@ -191,7 +197,7 @@ export function setupPortrait(figure: HTMLElement, reduced: MediaQueryList): { d
   }
 
   function draw() {
-    if (!gl || !ready || !available()) return;
+    if (!gl || !ready || reduced.matches || !available()) return;
     gl.uniform2f(uniforms.uPointer, x, y);
     gl.uniform2f(uniforms.uVelocity, velocityX, velocityY);
     gl.uniform1f(uniforms.uStrength, strength);
@@ -200,7 +206,7 @@ export function setupPortrait(figure: HTMLElement, reduced: MediaQueryList): { d
 
   function animate(time: number) {
     frame = 0;
-    if (!ready || !available()) return;
+    if (!ready || reduced.matches || !available()) return;
     const elapsed = previousTime ? Math.min(50, time - previousTime) : 16.67;
     previousTime = time;
     const ease = 1 - Math.exp(-elapsed / 86);
@@ -223,16 +229,18 @@ export function setupPortrait(figure: HTMLElement, reduced: MediaQueryList): { d
   }
 
   function requestDraw() {
-    if (ready && available() && !frame) frame = requestAnimationFrame(animate);
+    if (ready && !reduced.matches && available() && !frame) frame = requestAnimationFrame(animate);
   }
 
   function rebuild() {
     resizeFrame = 0;
-    if (!available() || !photo || !photo.complete || !photo.naturalWidth) return;
+    if (!available() || !photo || !realPhoto || !photo.complete || !photo.naturalWidth) return;
     const bounds = photo.getBoundingClientRect();
-    if (bounds.width < 1 || bounds.height < 1 || !initialize() || !gl) return;
+    if (bounds.width < 1 || bounds.height < 1) return;
     width = bounds.width;
     height = bounds.height;
+    figure.style.setProperty('--portrait-radius', `${Math.min(width, height) * 0.325}px`);
+    if (reduced.matches || !realPhoto.complete || !realPhoto.naturalWidth || !initialize() || !gl) return;
     const ratio = Math.min(devicePixelRatio || 1, 1.5);
     canvas.style.left = `${photo.offsetLeft}px`;
     canvas.style.top = `${photo.offsetTop}px`;
@@ -243,22 +251,24 @@ export function setupPortrait(figure: HTMLElement, reduced: MediaQueryList): { d
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.uniform2f(uniforms.uResolution, width, height);
 
-    // Use the same object-fit: cover crop and object-position as the DOM image.
-    const scale = Math.max(width / photo.naturalWidth, height / photo.naturalHeight);
-    const cropWidth = width / scale / photo.naturalWidth;
-    const cropHeight = height / scale / photo.naturalHeight;
-    const positions = getComputedStyle(photo).objectPosition.split(' ');
+    // The images have different proportions. Match the real photo's CSS cover
+    // crop without stretching it to the illustration's dimensions.
+    const scale = Math.max(width / realPhoto.naturalWidth, height / realPhoto.naturalHeight);
+    const cropWidth = width / scale / realPhoto.naturalWidth;
+    const cropHeight = height / scale / realPhoto.naturalHeight;
+    const positions = getComputedStyle(realPhoto).objectPosition.split(' ');
     const fraction = (value: string | undefined) => value?.endsWith('%') ? parseFloat(value) / 100 : 0.5;
     gl.uniform4f(uniforms.uCrop, (1 - cropWidth) * fraction(positions[0]), (1 - cropHeight) * fraction(positions[1]), cropWidth, cropHeight);
     try {
       gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, photo);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, realPhoto);
       ready = true;
       canvas.hidden = false;
       figure.classList.add('portrait-webgl-ready');
       draw();
+      requestDraw();
     } catch {
-      // A failed texture upload or cross-origin image leaves the original photo intact.
+      // CSS keeps the reveal usable if the GPU or texture upload fails.
       fallback();
     }
   }
@@ -268,11 +278,11 @@ export function setupPortrait(figure: HTMLElement, reduced: MediaQueryList): { d
   }
 
   function move(event: PointerEvent) {
-    if (!ready || !available() || !photo || (event.pointerType === 'touch' && !touchDown)) return;
+    if (!available() || !photo || (event.pointerType === 'touch' && !touchDown)) return;
     if ((event.target as Element | null)?.closest('a, button')) return leave();
     const bounds = photo.getBoundingClientRect();
-    const nextX = (event.clientX - bounds.left) / width;
-    const nextY = (event.clientY - bounds.top) / height;
+    const nextX = (event.clientX - bounds.left) / bounds.width;
+    const nextY = (event.clientY - bounds.top) / bounds.height;
     if (nextX < 0 || nextX > 1 || nextY < 0 || nextY > 1) return leave();
     velocityX = Math.max(-0.4, Math.min(0.4, (nextX - targetX) * 5));
     velocityY = Math.max(-0.4, Math.min(0.4, (nextY - targetY) * 5));
@@ -285,6 +295,9 @@ export function setupPortrait(figure: HTMLElement, reduced: MediaQueryList): { d
     }
     inside = true;
     targetStrength = 1;
+    figure.style.setProperty('--portrait-x', `${nextX * 100}%`);
+    figure.style.setProperty('--portrait-y', `${nextY * 100}%`);
+    figure.classList.add('is-revealing');
     requestDraw();
   }
 
@@ -296,6 +309,7 @@ export function setupPortrait(figure: HTMLElement, reduced: MediaQueryList): { d
   function leave() {
     inside = touchDown = false;
     targetStrength = 0;
+    figure.classList.remove('is-revealing');
     requestDraw();
   }
 
@@ -306,7 +320,8 @@ export function setupPortrait(figure: HTMLElement, reduced: MediaQueryList): { d
   function motionChange() {
     reset();
     canvas.hidden = reduced.matches || !ready;
-    if (!reduced.matches) scheduleRebuild();
+    figure.classList.toggle('portrait-webgl-ready', ready && !reduced.matches);
+    scheduleRebuild();
   }
 
   function visibilityChange() {
@@ -345,6 +360,7 @@ export function setupPortrait(figure: HTMLElement, reduced: MediaQueryList): { d
   reduced.addEventListener('change', motionChange);
   document.addEventListener('visibilitychange', visibilityChange);
   photo.addEventListener('load', scheduleRebuild);
+  realPhoto.addEventListener('load', scheduleRebuild);
   canvas.addEventListener('webglcontextlost', contextLost);
   canvas.addEventListener('webglcontextrestored', contextRestored);
   void photo.decode().then(scheduleRebuild).catch(() => {
@@ -367,11 +383,12 @@ export function setupPortrait(figure: HTMLElement, reduced: MediaQueryList): { d
       reduced.removeEventListener('change', motionChange);
       document.removeEventListener('visibilitychange', visibilityChange);
       photo.removeEventListener('load', scheduleRebuild);
+      realPhoto.removeEventListener('load', scheduleRebuild);
       canvas.removeEventListener('webglcontextlost', contextLost);
       canvas.removeEventListener('webglcontextrestored', contextRestored);
       releaseResources();
       gl?.getExtension('WEBGL_lose_context')?.loseContext();
-      figure.classList.remove('portrait-webgl-ready');
+      figure.classList.remove('portrait-webgl-ready', 'is-revealing');
       canvas.remove();
     },
   };

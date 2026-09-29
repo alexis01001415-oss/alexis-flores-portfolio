@@ -11,9 +11,9 @@
   letter-spacing: -1px;
 }
 
-/* Show the full, unretouched portrait in its original proportions. */
+/* Keep the supplied illustration uncropped; the photograph uses object-fit. */
 .about-portrait {
-  aspect-ratio: 640 / 641;
+  aspect-ratio: 1122 / 1402;
 }
 
 .about-portrait img {

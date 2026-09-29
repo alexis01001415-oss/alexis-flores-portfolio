@@ -1,4 +1,17 @@
-# Verificación — sexta versión
+# Verificación — séptima versión
+
+28 de septiembre de 2026. Retrato cartoon con máscara que revela la fotografía real.
+
+- Ilustración suministrada optimizada a WebP: 1122×1402 px, 98,572 bytes, sin recorte ni cambios visuales. Fotografía real existente conservada.
+- WebGL muestra la foto real dentro de una máscara orgánica que sigue el cursor y se desvanece al salir. Ambas imágenes mantienen sus proporciones; el recorte CSS y el del shader coinciden.
+- Verificado en navegador: cartoon inicial, desplazamiento de la máscara por el rostro, retorno al salir y fotografía visible al recibir foco de teclado. Sin errores en consola durante estas comprobaciones.
+- Revisión responsive en 1280×800 y 390×844. No se modifica el resto de las secciones.
+- Revisión de código: eventos táctiles pasivos con pan vertical y zoom permitidos; reinicio al soltar/cancelar. Movimiento reducido y fallo de WebGL usan máscara CSS. Estas condiciones no se simularon en un dispositivo táctil físico.
+- TypeScript y build de producción correctos. Permanece el aviso previo de tamaño del módulo Three.js; no se añadieron dependencias.
+
+---
+
+# Historial — sexta versión
 
 28 de septiembre de 2026. Perfil UX/UI, identidad, formación completa y contacto.
 
