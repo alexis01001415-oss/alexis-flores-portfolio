@@ -67,6 +67,11 @@
 .career-earlier h3 { font-size: 32px; margin: 12px 0 8px; }
 .career-earlier p { max-width: 64ch; }
 .career-earlier > div:last-child { align-self: center; }
+.career-current { margin-top: 64px; border-top: 2px solid var(--ink); border-bottom: 1px solid #13121140; }
+.career-current ul { padding-left: 20px; margin: 0; font-size: 18px; }
+.career-current li + li { margin-top: 20px; }
+.career-current li::marker { color: var(--button); }
+.career-current .eyebrow { color: var(--button); }
 .education-record { border-top: 1px solid #13121145; padding-top: 48px; margin-top: 56px; }
 .education-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 32px; margin-bottom: 32px; }
 .education-heading h3 { font-size: clamp(28px, 3vw, 44px); }
@@ -102,6 +107,8 @@
   .skill-levels > div { grid-template-columns: 1fr; gap: 4px; }
   .skill-toolset span { padding: 6px 8px; font-size: 11px; }
   .career-earlier, .education-list { grid-template-columns: 1fr; gap: 24px; }
+  .career-current { margin-top: 40px; }
+  .career-current ul { font-size: 17px; }
   .education-heading { flex-direction: column; gap: 8px; }
   .education-list { gap: 0; }
   .education-entry h4 { font-size: 23px; }

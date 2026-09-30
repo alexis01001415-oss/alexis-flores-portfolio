@@ -1,11 +1,10 @@
-"""Create Felix Alexis Flores Rojas's two-page CV from verified information.
+"""Create a historical CV version; this is not the current published CV.
 
 Requires reportlab and fonttools. Fonts come from @fontsource/yantramanav.
-The website receives a byte-identical copy of the final PDF.
+Writes only a legacy PDF under output/pdf; never modifies the website's CV.
 """
 
 from pathlib import Path
-from shutil import copyfile
 from xml.sax.saxutils import escape
 
 from fontTools.ttLib import TTFont as FontToolsFont
@@ -20,8 +19,7 @@ from reportlab.platypus import Paragraph
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "output/pdf/Alexis-Flores-CV.pdf"
-PUBLIC = ROOT / "public/documents/Alexis-Flores-CV.pdf"
+OUTPUT = ROOT / "output/pdf/Alexis-Flores-CV-legacy.pdf"
 TEMP = ROOT / "tmp/pdfs"
 PAGE_W, PAGE_H = A4
 LEFT = 43
@@ -51,7 +49,6 @@ def register_fonts():
 def make_pdf():
     register_fonts()
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    PUBLIC.parent.mkdir(parents=True, exist_ok=True)
     pdf = canvas.Canvas(str(OUTPUT), pagesize=A4, pageCompression=1, invariant=1)
     pdf.setTitle("Felix Alexis Flores Rojas | CV - Diseño UX/UI")
     pdf.setAuthor("Felix Alexis Flores Rojas")
@@ -200,9 +197,7 @@ def make_pdf():
         cursor = education(title, institution, dates, cursor)
     page_end(2, cursor)
     pdf.save()
-    copyfile(OUTPUT, PUBLIC)
     print(f"Created {OUTPUT}")
-    print(f"Published identical copy: {PUBLIC}")
 
 
 if __name__ == "__main__":

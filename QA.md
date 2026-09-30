@@ -1,4 +1,17 @@
-# Verificación — séptima versión
+# Verificación — octava versión
+
+29 de septiembre de 2026. Actualización del apartado CV con el documento proporcionado por Alexis.
+
+- Revisadas las dos páginas de `CV FAFR.pdf` mediante extracción y render de Poppler. PDF publicado intacto: 52,074 bytes; SHA-256 `aa07979b8c2b65d3e83f063e62979524ef651012e77bdf412a141a106e749ff2`.
+- Copia fuente, archivo público, archivo de build y descarga mediante el botón del navegador tienen el mismo hash. Los tres enlaces de descarga apuntan al archivo sustituido.
+- Actividad freelance actual y aumento superior al 80 % en solicitudes de cotización; resultado sin atribuirlo a un proyecto específico. T-Line actualizado a abril de 2024–septiembre de 2026, con consola Curiosity Cloud y reducción aproximada del 50 % en tasa de rebote.
+- Añadidas formación de Platzi en diseño gráfico e IA, Design Thinking, Scrum, publicidad impresa y desarrollo asistido. Formación y experiencia anteriores conservadas como información ampliada, conforme a las indicaciones previas del propietario.
+- Compilación TypeScript/Vite correcta; permanece el aviso previo de tamaño del módulo Three.js. Generador antiguo aislado: solo escribe un PDF histórico en `output/pdf`, sin sobrescribir el descargable actual.
+- Revisión visual en 1280×800 y 390×844: bloque freelance en dos columnas en escritorio y una en móvil, botón de descarga accesible y sin desbordamiento horizontal.
+
+---
+
+# Historial — séptima versión
 
 28 de septiembre de 2026. Retrato cartoon con máscara que revela la fotografía real.
 

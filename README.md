@@ -1,4 +1,4 @@
-# Felix Alexis Flores Rojas — Portafolio v7
+# Felix Alexis Flores Rojas — Portafolio v8
 
 Portafolio profesional de **Alexis Flores**, diseñador UX/UI de productos digitales. Su especialidad es el diseño de experiencia e interfaces para aplicaciones, plataformas y sitios web; la implementación visual complementa ese trabajo, con dominio de HTML y CSS y nociones básicas de JavaScript. Sitio estático para GitHub Pages con una escena original de Blender, Three.js, GSAP, SplitText y Lenis. Presenta competencias, trayectoria, proyectos web y un CV descargable.
 
@@ -52,20 +52,23 @@ Ambas imágenes son archivos locales WebP: la ilustración completa en `public/i
 
 ## Información profesional
 
-El contenido se basa en el CV anterior proporcionado por Alexis y en sus indicaciones posteriores. Su nombre completo es **Felix Alexis Flores Rojas**, sin acento, como confirmó el propietario. El documento confirma **Grupo Invictus**, corrigiendo la transcripción anterior del nombre de la empresa.
+El contenido se actualiza con **CV FAFR.pdf**, proporcionado por Alexis el **29 de septiembre de 2026**, y conserva la trayectoria y formación ampliadas del CV anterior y sus indicaciones. Su nombre completo es **Felix Alexis Flores Rojas**, sin acento, como confirmó el propietario. El nombre correcto de la empresa es **Grupo Invictus**.
 
 | Empresa | Periodo | Puesto |
 | --- | --- | --- |
-| T-Line México | 2023–2026 | Diseño UX/UI e implementación web |
+| Proyectos freelance | Actualidad | Diseño web, diseño gráfico y publicidad impresa |
+| T-Line México | Abril de 2024–septiembre de 2026 | Diseño UX/UI e implementación web |
 | Grupo Invictus | Marzo de 2023–abril de 2024 | Diseñador UX/UI y diseñador web |
 | Fundación ADO | Junio de 2022–marzo de 2023 | Diseñador gráfico |
 | Mobility ADO | Noviembre de 2019–noviembre de 2020 | Auxiliar administrativo |
 
-La trayectoria de la web detalla los tres puestos de diseño y añade Mobility ADO como experiencia previa. El PDF incluye los cuatro puestos. Las funciones se desglosan en diseño de experiencias, validación, implementación visual, colaboración y comunicación gráfica según corresponda. Las fechas de T-Line siguen la actualización expresada por Alexis. Se conservan los periodos indicados por las fuentes, aunque se superpongan.
+La trayectoria de la web detalla la actividad freelance y los tres puestos de diseño, y conserva Mobility ADO como experiencia previa del CV anterior. El PDF actualizado incluye la actividad freelance, T-Line, Grupo Invictus y Fundación ADO. Las funciones se desglosan en diseño de experiencias, validación, implementación visual, colaboración y comunicación gráfica según corresponda. Las fechas de T-Line siguen el nuevo PDF.
+
+Los resultados aportados en el CV actualizado son un aumento de **más del 80 % en solicitudes de cotización por formulario** en un sitio freelance, sin identificarlo por nombre, y una reducción **aproximada del 50 % en la tasa de rebote** de los nuevos flujos de la consola de **Curiosity Cloud** en T-Line. El primer resultado no se atribuye a un proyecto concreto de la galería; el segundo corresponde a la consola y no a Curiosity Marketplace.
 
 **Formación académica:** Licenciatura en Diseño Gráfico y Animación Digital en la Universidad Autónoma de Tamaulipas, agosto de 2021–julio de 2024; Bachillerato en el Colegio de Bachilleres No. 2, agosto de 2014–julio de 2018.
 
-La web y el PDF incluyen las seis entradas de formación complementaria del CV fuente:
+La web conserva las seis entradas de formación complementaria del CV anterior y añade las áreas de diseño gráfico e inteligencia artificial de Platzi confirmadas en el nuevo PDF, sin asignarles fechas:
 
 | Formación | Institución | Periodo |
 | --- | --- | --- |
@@ -75,6 +78,9 @@ La web y el PDF incluyen las seis entradas de formación complementaria del CV f
 | Diseño de producto | Platzi | Febrero de 2022–diciembre de 2023 |
 | Desarrollo web | Platzi | Febrero de 2022–diciembre de 2023 |
 | Inglés | Platzi | Febrero de 2022–diciembre de 2023 |
+| Diseño gráfico e inteligencia artificial | Platzi | Sin fechas indicadas |
+
+El PDF actualizado resume la formación en la licenciatura (2021–2024), la certificación Google / Coursera (2022–2023) y certificados de Platzi en diseño web, diseño gráfico, inteligencia artificial y UX/UI. La web mantiene también el bachillerato y los cursos anteriores como información ampliada.
 
 Las competencias reúnen lo documentado y las herramientas confirmadas por Alexis: investigación, user flows, prototipado y pruebas de usabilidad; manejo avanzado de Figma, Framer, WordPress y Webflow; dominio de HTML y CSS y nociones básicas de JavaScript. También incluyen diseño gráfico, Blender para modelos y recursos 3D integrados en productos digitales, GitHub, Odoo, Shopify, Adobe, Rive y Lottie. El área de IA abarca ChatGPT, Claude, prompt engineering, generación de imágenes y prototipado asistido, con revisión de resultados.
 
@@ -96,15 +102,9 @@ Las descripciones explican el contenido visible de los sitios y su reto de dise�
 
 ## CV descargable
 
-El PDF A4 de **dos páginas** está en `public/documents/Alexis-Flores-CV.pdf`. Incluye nombre completo sin acento, perfil de diseño UX/UI, contacto, cuatro experiencias profesionales, competencias con niveles explícitos, dos entradas de formación académica, seis de formación complementaria y enlaces profesionales. Usa texto seleccionable y una columna de lectura.
+El archivo `public/documents/Alexis-Flores-CV.pdf` es una copia exacta e intacta de **CV FAFR.pdf**, proporcionado el **29 de septiembre de 2026**: **dos páginas, 52,074 bytes**. Conserva el contenido, diseño y enlaces del documento recibido. Los tres enlaces de descarga —menú, hero y sección CV— apuntan a este mismo archivo actualizado.
 
-```sh
-npm ci
-python -m pip install reportlab fonttools
-python scripts/create_cv.py
-```
-
-El generador `scripts/create_cv.py` utiliza Yantramanav desde la dependencia de npm. Crea `output/pdf/Alexis-Flores-CV.pdf` y una copia idéntica en `public/documents/`. Al modificar la trayectoria, mantener sincronizados el generador y `index.html`, regenerar el PDF y revisar su render antes de publicar. El CV fuente permanece fuera del repositorio.
+Para futuras actualizaciones, sustituir el descargable por el PDF proporcionado por Alexis y ajustar el contenido HTML que corresponda. `scripts/create_cv.py` se conserva únicamente como generador histórico de la versión anterior: escribe `output/pdf/Alexis-Flores-CV-legacy.pdf` y no modifica el documento publicado. El CV fuente original permanece fuera del repositorio.
 
 ## Contacto y Web3Forms
 
