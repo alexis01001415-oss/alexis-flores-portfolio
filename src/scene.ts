@@ -87,7 +87,7 @@ export async function createExperience(host:HTMLElement, options:Options){
     if(screen){screenMaps.push(screenDesign(0),screenDesign(1),screenDesign(2));}
     let progress=0,paused=false,isShowcase=false,light=false,visible=true,raf=0,disposed=false,ready=false,contextLost=false,pointerX=0,pointerY=0,currentX=0,currentY=0;
     let transitionProgress=0,showcaseIndex=0,lastShowcaseIndex=-1;
-    const showcaseFiles=['curiosity','macloud','gatical'];
+    const showcaseFiles=['curiosity','macloud','gatical','gomez'];
     const showcaseTextures=new Map<number,THREE.Texture>();
     const requestedTextures=new Set<number>();
     const textureLoader=new THREE.TextureLoader();

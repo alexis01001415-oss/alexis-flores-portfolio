@@ -1,4 +1,28 @@
-# Verificación — octava versión
+# Verificación — novena versión
+
+28 de octubre de 2026. CV actualizado, cuarto proyecto web y sección de producto 3D de SEICENTO.
+
+## Contenido y recursos comprobados
+
+- CV proporcionado: una página A4, 68,486 bytes. Extracción completa y render revisados. La copia pública conserva el SHA-256 `75d29146cbfacecab956404d72b2f4734f26021a2871c8ea60212e8c412d4bf3` del archivo original. El PDF no se regeneró ni se editó.
+- Perfil de Diseñador de Producto Digital UX/UI; consultoría desde marzo de 2026. T-Line incorpora Cloud, XDR, HCI, research, Maze, Atomic Design, CX/UX writing y analítica. Curiosity Marketplace se atribuye a T-Line, según el nuevo CV.
+- Siete áreas de competencias. Marketing y analítica con nivel intermedio; JavaScript básico conserva la precisión solicitada anteriormente por Alexis. Inglés B2 y certificaciones actualizadas, sin eliminar la formación ampliada previa.
+- Gómez se incorpora como cuarto proyecto con captura del sitio suministrado, enlace de Framer y estado «En desarrollo». Menú, índice y lista de texturas de la laptop incluyen el proyecto. La categoría general es «Proyectos web» al reunir trabajo laboral y freelance.
+- Recursos SEICENTO procedentes de los proyectos originales de Blender: 90 fotogramas WebP RGBA del estuche, de 1280×720, 1,964,832 bytes; póster de 57,996 bytes. Tres renders Cycles de Cristal Rubí a 720×1280, 78,256 bytes en total. Cristal Rubí se identifica como aceite labial ficticio.
+- La implementación de producto usa secuencia de imágenes y canvas 2D con GSAP, carga cercana a pantalla, tres peticiones simultáneas y caché acotada. El contenido textual y póster quedan en HTML; se contempla movimiento reducido y limpieza de recursos.
+
+## Verificación final
+
+- TypeScript y build de producción correctos. Permanece el aviso previo de tamaño del módulo Three.js; esta iteración no añade dependencias.
+- En 1440×900, la secuencia avanzó por los fotogramas 21, 45 y 86, y retrocedió al 67 al invertir el scroll. Apertura, tonos, cierre y brochas comprobados visualmente; las tres composiciones de Cristal Rubí se muestran correctamente.
+- Revisión en 390×844 y 390×600: contenido, animación y fases caben en pantalla sin desbordamiento horizontal. En 320×568 se comprobó el póster estático y la desactivación de la secuencia para conservar espacio de lectura.
+- Descarga real desde el menú: el archivo descargado, la copia pública, el build y el PDF adjunto tienen el mismo SHA-256. Los tres enlaces apuntan al documento actualizado.
+- Menú con cuatro proyectos y acceso a Producto 3D; CV y galería móvil conservan lectura vertical. Sin errores ni advertencias de consola en las interacciones inspeccionadas.
+- No se repitió Lighthouse ni se probó en un dispositivo táctil físico. Movimiento reducido y limpieza de recursos revisados en código.
+
+---
+
+# Historial — octava versión
 
 29 de septiembre de 2026. Actualización del apartado CV con el documento proporcionado por Alexis.
 

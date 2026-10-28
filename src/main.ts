@@ -5,6 +5,7 @@ import Lenis from 'lenis';
 import { setupPortrait } from './portrait';
 import { setupContact } from './contact';
 import { setupFooterMotion } from './footer';
+import { setupProductDesign } from './product-design';
 import type { Experience } from './scene';
 import './gallery.css';
 import './timeline.css';
@@ -161,6 +162,7 @@ function setupMotion() {
       if (!reduced.matches) gsap.to('.chapter-outro .chapter-copy', { opacity: 0, y: -48, ease: 'none', scrollTrigger: { trigger: transition, start: 'top 90%', end: 'top 40%', scrub: true } });
     }
     if (reduced.matches) {
+      gsap.context(() => setupProductDesign(true));
       gsap.context(() => setupFooterMotion(true));
       return;
     }
@@ -245,7 +247,8 @@ function setupMotion() {
       galleryProgress = tween.progress(); update();
       return restoreGallery;
     });
-    // Measure the footer after the gallery has inserted its pin spacing.
+    gsap.context(() => setupProductDesign(false));
+    // Measure the footer after the gallery and product story establish their height.
     gsap.context(() => setupFooterMotion(false));
   });
   ScrollTrigger.refresh(); scrollState(); syncScene();
