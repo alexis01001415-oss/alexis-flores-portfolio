@@ -14,6 +14,8 @@ export function setupProductDesign(reduced: boolean): () => void {
   const visual = section.querySelector<HTMLElement>('.product-case-visual')!;
   const progressBar = section.querySelector<HTMLElement>('.product-sequence-progress i')!;
   const phases = Array.from(section.querySelectorAll<HTMLElement>('[data-product-phase]'));
+  const caption = section.querySelector<HTMLElement>('.product-case-caption')!;
+  const notes = Array.from(section.querySelectorAll<HTMLElement>('.case-note'));
   const frameCount = Number(story.dataset.frames) || 90;
   const prefix = `${import.meta.env.BASE_URL}images/seicento/case/frame-`;
   let disposed = false;
@@ -22,6 +24,8 @@ export function setupProductDesign(reduced: boolean): () => void {
   let target = 0;
   let lastDrawn = -1;
   let activeLoads = 0;
+  let sequenceUnavailable = false;
+  let restoreSequenceFallback = () => {};
   let width = 1;
   let height = 1;
   let currentPhase = -1;
@@ -33,7 +37,17 @@ export function setupProductDesign(reduced: boolean): () => void {
   const lookAhead = innerWidth <= 800 ? 5 : 8;
   const cleanup: Array<() => void> = [];
   const context = canvas.getContext('2d', { alpha: true });
-  const canAnimate = !reduced && innerHeight >= 600 && Boolean(context);
+  const canAnimate = !reduced && innerHeight >= 660 && Boolean(context);
+  const compact = innerWidth <= 800;
+  const clamp = (n: number) => Math.max(0, Math.min(1, n));
+  const range = (p: number, start: number, end: number) => clamp((p - start) / (end - start));
+  const showText = (element: HTMLElement, amount: number, direction = 1) => {
+    const visible = clamp(amount);
+    element.style.opacity = String(visible);
+    element.style.filter = `blur(${(1 - visible) * 8}px)`;
+    element.style.transform = `translateY(${(1 - visible) * 24 * direction}px)`;
+  };
+  const windowed = (p: number, a: number, b: number, c: number, d: number) => range(p, a, b) * (1 - range(p, c, d));
 
   function paint() {
     drawRequest = 0;
@@ -79,7 +93,7 @@ export function setupProductDesign(reduced: boolean): () => void {
   }
 
   function pump() {
-    if (disposed || !inRange || document.hidden || !canAnimate) return;
+    if (disposed || sequenceUnavailable || !inRange || document.hidden || !canAnimate) return;
     for (const index of desiredFrames()) {
       if (activeLoads >= 3) break;
       if (bitmaps.has(index) || pending.has(index) || failed.has(index)) continue;
@@ -106,6 +120,11 @@ export function setupProductDesign(reduced: boolean): () => void {
           pending.delete(index);
           controllers.delete(controller);
           activeLoads--;
+          if (!disposed && failed.size >= 6 && !bitmaps.size && !sequenceUnavailable) {
+            sequenceUnavailable = true;
+            restoreSequenceFallback();
+            return;
+          }
           pump();
         });
     }
@@ -124,9 +143,18 @@ export function setupProductDesign(reduced: boolean): () => void {
   }
 
   function progress(value: number) {
-    target = Math.min(frameCount - 1, Math.max(0, Math.round(value * (frameCount - 1))));
+    // Hold the closed case while the introduction is read, then open it.
+    const frameProgress = range(value, .09, .95);
+    target = Math.min(frameCount - 1, Math.max(0, Math.round(frameProgress * (frameCount - 1))));
     progressBar.style.transform = `scaleX(${value})`;
-    const nextPhase = value < 0.3 ? 0 : value < 0.57 ? 1 : 2;
+    showText(caption, 1 - range(value, .1, .23), -1);
+    if (compact) {
+      showText(notes[0], windowed(value, .34, .41, .53, .59));
+      showText(notes[1], windowed(value, .59, .65, .85, .92));
+    } else {
+      notes.forEach(note => showText(note, windowed(value, .35, .43, .76, .86)));
+    }
+    const nextPhase = frameProgress < 0.3 ? 0 : frameProgress < 0.65 ? 1 : 2;
     if (currentPhase !== nextPhase) {
       currentPhase = nextPhase;
       phases.forEach((phase, index) => phase.classList.toggle('is-active', index === nextPhase));
@@ -156,6 +184,15 @@ export function setupProductDesign(reduced: boolean): () => void {
       },
     });
     cleanup.push(() => { scrub.scrollTrigger?.kill(); scrub.kill(); });
+    restoreSequenceFallback = () => {
+      observer.disconnect(); resizeObserver.disconnect();
+      controllers.forEach(controller => controller.abort());
+      cancelAnimationFrame(drawRequest); drawRequest = 0; inRange = false;
+      scrub.scrollTrigger?.kill(); scrub.kill();
+      section.classList.remove('has-product-motion');
+      [caption, ...notes].forEach(el => { el.style.removeProperty('opacity'); el.style.removeProperty('filter'); el.style.removeProperty('transform'); });
+      ScrollTrigger.refresh();
+    };
     progress(0);
     const visibility = () => {
       if (document.hidden) { cancelAnimationFrame(drawRequest); drawRequest = 0; }
@@ -163,6 +200,79 @@ export function setupProductDesign(reduced: boolean): () => void {
     };
     document.addEventListener('visibilitychange', visibility);
     cleanup.push(() => document.removeEventListener('visibilitychange', visibility));
+  }
+
+  // The bottle is actual Blender geometry. Fetch and create its WebGL view only
+  // when this part of the portfolio approaches the viewport.
+  const rubiStory = section.querySelector<HTMLElement>('.rubi-story')!;
+  const rubiCanvas = section.querySelector<HTMLCanvasElement>('.rubi-model canvas')!;
+  const rubiIntro = section.querySelector<HTMLElement>('.rubi-heading')!;
+  const rubiNotes = Array.from(section.querySelectorAll<HTMLElement>('[data-rubi-note]'));
+  const rubiProgress = section.querySelector<HTMLElement>('.rubi-progress i')!;
+  if (!reduced && innerHeight >= 660) {
+    type RubiView = Awaited<ReturnType<typeof import('./rubi-scene')['createRubiScene']>>;
+    let view: RubiView | undefined;
+    let started = false;
+    let visible = false;
+    let rubiValue = 0;
+    const modelAbort = new AbortController();
+    section.classList.add('has-rubi-motion');
+    const updateRubi = (value: number) => {
+      rubiValue = value;
+      view?.setProgress(value);
+      if (compact) {
+        const detail = range(value, .08, .24);
+        const top = innerWidth <= 560 ? 320 : 260;
+        rubiStory.style.setProperty('--rubi-top', `${top + (88 - top) * detail}px`);
+        rubiStory.style.setProperty('--rubi-bottom', `${72 + 208 * detail}px`);
+      }
+      showText(rubiIntro, 1 - range(value, .08, .2), -1);
+      showText(rubiNotes[0], windowed(value, .19, .25, .38, .46));
+      showText(rubiNotes[1], windowed(value, .44, .5, .62, .7));
+      showText(rubiNotes[2], windowed(value, .69, .76, .96, 1.03));
+      rubiProgress.style.transform = `scaleX(${value})`;
+    };
+    const playhead = { value: 0 };
+    const tween = gsap.to(playhead, { value: 1, ease: 'none', onUpdate: () => updateRubi(playhead.value),
+      scrollTrigger: { trigger: rubiStory, start: compact ? 'top 72px' : 'top top', end: 'bottom bottom', scrub: .5, invalidateOnRefresh: true },
+    });
+    updateRubi(tween.progress());
+    const observer = new IntersectionObserver(entries => {
+      visible = entries[0]?.isIntersecting ?? false;
+      view?.setActive(visible && !document.hidden);
+      if (!visible || started || disposed) return;
+      started = true;
+      void import('./rubi-scene').then(module => {
+        if (disposed) return undefined;
+        return module.createRubiScene(rubiCanvas, modelAbort.signal);
+      }).then(result => {
+        if (!result) return;
+        if (disposed) { result.dispose(); return; }
+        view = result;
+        view.setProgress(rubiValue);
+        view.setActive(visible && !document.hidden);
+      }).catch(() => {
+        if (disposed) return;
+        // A readable, unpinned poster and notes survive unavailable WebGL/assets.
+        tween.scrollTrigger?.kill(); tween.kill();
+        section.classList.remove('has-rubi-motion');
+        [rubiIntro, ...rubiNotes].forEach(el => { el.style.removeProperty('opacity'); el.style.removeProperty('filter'); el.style.removeProperty('transform'); });
+        ScrollTrigger.refresh();
+      });
+    }, { rootMargin: '500px 0px' });
+    observer.observe(rubiStory);
+    const onVisibility = () => view?.setActive(visible && !document.hidden);
+    document.addEventListener('visibilitychange', onVisibility);
+    cleanup.push(() => {
+      modelAbort.abort(); observer.disconnect(); view?.dispose();
+      tween.scrollTrigger?.kill(); tween.kill();
+      document.removeEventListener('visibilitychange', onVisibility);
+      section.classList.remove('has-rubi-motion');
+      [rubiIntro, ...rubiNotes].forEach(el => { el.style.removeProperty('opacity'); el.style.removeProperty('filter'); el.style.removeProperty('transform'); });
+      rubiProgress.style.removeProperty('transform');
+      rubiStory.style.removeProperty('--rubi-top');
+      rubiStory.style.removeProperty('--rubi-bottom');
+    });
   }
 
   if (!reduced) {
@@ -181,7 +291,7 @@ export function setupProductDesign(reduced: boolean): () => void {
     const rule = section.querySelector('.rubi-rule');
     const line = gsap.fromTo(rule, { scaleX: 0 }, {
       scaleX: 1, ease: 'none', transformOrigin: 'left center',
-      scrollTrigger: { trigger: '.rubi-study', start: 'top 85%', end: 'top 20%', scrub: .4 },
+      scrollTrigger: { trigger: '.rubi-photography', start: 'top 85%', end: 'top 20%', scrub: .4 },
     });
     cleanup.push(() => { line.scrollTrigger?.kill(); line.kill(); });
   }
@@ -197,6 +307,7 @@ export function setupProductDesign(reduced: boolean): () => void {
     stage.classList.remove('has-sequence');
     progressBar.style.removeProperty('transform');
     phases.forEach(phase => phase.classList.remove('is-active'));
+    [caption, ...notes].forEach(el => { el.style.removeProperty('opacity'); el.style.removeProperty('filter'); el.style.removeProperty('transform'); });
     canvas.removeAttribute('data-frame');
   };
 }

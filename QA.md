@@ -1,4 +1,38 @@
-# Verificación — novena versión
+# Verificación — décima versión
+
+28 de octubre de 2026. Separación de sitios publicados y proyectos en proceso, recorrido ampliado de SEICENTO y modelo WebGL de Cristal Rubí.
+
+## Contenido y recursos
+
+- La galería inicial conserva tres sitios publicados: Curiosity Marketplace, Macloud y Gatical. Gómez pasa al apartado «Páginas web en proceso» junto a UMBRAL, Solea Solar, DUANOR y HELIO, con los cuatro enlaces suministrados en esta iteración.
+- El selector de proyectos en proceso presenta recursos visuales y una vista interactiva bajo demanda. El código crea un único iframe tras la acción del visitante, lo retira al cambiar/cerrar/salir de la zona y conserva enlaces externos y alternativas sin JavaScript. La navegación del selector incluye teclado y `aria-pressed`.
+- Behance añadido al menú; el CV, el PDF descargable y la información profesional se conservan sin cambios respecto a v9.
+- SEICENTO tiene fondo marfil continuo desde su encabezado hasta las fotografías de Cristal Rubí. El estuche conserva 90 fotogramas y amplía su presentación, con texto superior que se oculta al abrirse y textos laterales vinculados a la vista de los tonos.
+- Cristal Rubí se identifica como producto real de SEICENTO por aclaración expresa de Alexis. Esta corrección sustituye la descripción anterior; el historial v9 se conserva como registro de lo publicado entonces.
+- GLB derivado de las colecciones originales del archivo Blender v009: 1,867,112 bytes, 14 mallas y 74,860 triángulos. Grupos `RubiBody` y `RubiCap` separados; no incluye escenarios, cámaras, luces ni duplicados. Exportación sin Draco, con materiales PBR adaptados a tiempo real y 1,400 fibras derivadas de las curvas originales.
+- Archivo GLB inspeccionado: una escena, 17 nodos y 14 mallas; nombres, límites y materiales registrados en `public/models/seicento/cristal-rubi.json`. Render de prueba de la geometría/materiales exportados revisado en Blender; originales `.blend` intactos.
+- El recorrido WebGL añade acercamientos a tapa y vidrio y apertura del aplicador antes de las tres fotografías Cycles ya existentes. Se contemplan carga cercana, dibujo bajo demanda, pausa fuera de pantalla y limpieza de recursos.
+- Procedencia y transformación de los recursos en `assets-source/seicento/SOURCES.md`. Las marcas e imágenes de los proyectos conservan los derechos de sus titulares; esta exportación no les atribuye una licencia nueva.
+
+## Verificación de integración
+
+- Revisión estática de `index.html`: sin IDs duplicados, anclas internas rotas ni recursos locales ausentes entre imágenes, scripts y hojas enlazadas.
+- PDF actual comprobado sin cambios: SHA-256 `75d29146cbfacecab956404d72b2f4734f26021a2871c8ea60212e8c412d4bf3`.
+- `git diff --check` correcto para README y QA.
+
+## Navegador y compilación
+
+- Compilación TypeScript/Vite correcta, sin dependencias nuevas. Persiste el aviso de tamaño del bloque compartido Three.js/GLTFLoader.
+- En escritorio (1440×900 y 1280×720), se comprobó el fondo claro continuo, el estuche ampliado, la desaparición por desenfoque del texto inicial y los dos textos laterales sobre la vista de color. El recorrido responde al avance y retroceso del scroll.
+- Modelo Cristal Rubí cargado desde el GLB: vista completa, acercamiento a la tapa y apertura de tapa/varilla observados en navegador. Se corrigió el fondo blanco de la transmisión de Three.js para integrarlo con el marfil de la sección.
+- En 390×844, se corrigió la superposición inicial entre texto y tapa: el espacio del canvas cambia con el progreso. Texto y modelo quedan separados. En 320×568, ambos recorridos usan contenido estático y el documento no desborda horizontalmente (305px de contenido).
+- UMBRAL y HELIO se cargaron como demos reales dentro del iframe en móvil. Al cerrar se comprobó que el número de iframes vuelve de uno a cero. El botón de cierre permanece visible en la barra de la demo. Los cinco enlaces externos se verificaron por HTTP y todos respondieron 200.
+- Behance, Web en proceso y Producto 3D están presentes en el menú. Los iconos nuevos reutilizan glifos del archivo local de Google Material Symbols.
+- Consola sin errores ni advertencias durante los recorridos y demos inspeccionados. Movimiento reducido, fallos de carga y limpieza se revisaron en código; no se simularon pérdida de contexto ni dispositivo táctil físico. No se repitió Lighthouse en esta iteración.
+
+---
+
+# Historial — novena versión
 
 28 de octubre de 2026. CV actualizado, cuarto proyecto web y sección de producto 3D de SEICENTO.
 

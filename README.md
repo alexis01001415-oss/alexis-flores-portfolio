@@ -1,6 +1,6 @@
-# Felix Alexis Flores Rojas — Portafolio v9
+# Felix Alexis Flores Rojas — Portafolio v10
 
-Portafolio profesional de **Alexis Flores**, diseñador de producto digital UX/UI. Su especialidad es el diseño de experiencia e interfaces para aplicaciones, plataformas y sitios web; la implementación visual complementa ese trabajo, con dominio de HTML y CSS y nociones básicas de JavaScript. Sitio estático para GitHub Pages con una escena original de Blender, Three.js, GSAP, SplitText y Lenis. Presenta competencias, trayectoria, cuatro proyectos web, diseño de producto 3D para SEICENTO y un CV descargable.
+Portafolio profesional de **Alexis Flores**, diseñador de producto digital UX/UI. Su especialidad es el diseño de experiencia e interfaces para aplicaciones, plataformas y sitios web; la implementación visual complementa ese trabajo, con dominio de HTML y CSS y nociones básicas de JavaScript. Sitio estático para GitHub Pages con una escena original de Blender, Three.js, GSAP, SplitText y Lenis. Presenta competencias, trayectoria, tres sitios publicados, cinco proyectos web en proceso, diseño de producto 3D para SEICENTO y un CV descargable.
 
 [Portafolio público](https://alexis01001415-oss.github.io/alexis-flores-portfolio/) · [Repositorio](https://github.com/alexis01001415-oss/alexis-flores-portfolio)
 
@@ -19,7 +19,7 @@ Node.js 22 o posterior. La compilación valida TypeScript, genera los archivos d
 
 La paleta combina marfil `#F2EAE3`, gris cálido `#D0C9C3`, rojo `#FF073A`, carbón `#131211` y negro. Los botones primarios usan `#C90030` con texto marfil, con contraste aproximado de **5.01:1**. La tipografía es Yantramanav; los iconos son Google Material Symbols alojados localmente.
 
-- **Navegación lateral:** cabecera siempre visible a la izquierda en escritorio y barra superior en móvil. El menú ampliado contiene perfil, CV, desplegable de proyectos web, producto 3D y contacto. Los enlaces del menú se rellenan de izquierda a derecha al pasar el cursor o recibir foco; logo, menú, contacto y descarga del CV tienen estados de interacción propios. Incluye cierre con Escape, devolución del foco y navegación con teclado.
+- **Navegación lateral:** cabecera siempre visible a la izquierda en escritorio y barra superior en móvil. El menú ampliado contiene perfil, CV, desplegable de sitios publicados, páginas web en proceso, producto 3D y contacto. Behance se añade junto a la descarga del CV y el correo. Los enlaces del menú se rellenan de izquierda a derecha al pasar el cursor o recibir foco; logo, menú, contacto y descarga del CV tienen estados de interacción propios. Incluye cierre con Escape, devolución del foco y navegación con teclado.
 - **Marca y preloader:** separación ampliada entre las iniciales del monograma `af.` en la cabecera, la fotografía, el preloader y el favicon. Este último utiliza contornos de Yantramanav Bold. El preloader anima las iniciales y sale mediante cinco franjas; espera a las fuentes y a la preparación de la escena, con una entrada mínima de 1.9 segundos y un límite de carga de 12 segundos. No muestra porcentajes simulados ni exige pulsar un botón.
 - **Hero:** el sello «PORTAFOLIO 2026» aumenta de tamaño y recibe un acento gráfico rojo. Una textura animada de ruido y líneas analógicas aparece exclusivamente en el hero, se detiene cuando este sale de pantalla y queda estática con movimiento reducido.
 - **Recorrido inicial:** la laptop de Blender se abre, los objetos del escritorio se separan y la composición cambia de lado con el scroll. Los tres capítulos presentan la curiosidad de Alexis por entender a las personas, su interés por el diseño visual y el 3D, y su forma de aprender mediante exploración e iteración. Después del tercer capítulo, la laptop se coloca de frente y la cámara se acerca hasta que su pantalla llena el ancho de la vista, dando paso al perfil sobre fondo marfil. Esta transición se acorta si el usuario prefiere movimiento reducido o falla la escena.
@@ -27,7 +27,8 @@ La paleta combina marfil `#F2EAE3`, gris cálido `#D0C9C3`, rojo `#FF073A`, carb
 - **Trayectoria:** una cinta de mayor tamaño forma tres bucles y cruces entre las experiencias, con más espacio entre entradas. El recorrido y las tarjetas no proyectan sombras. Años y tarjetas tienen movimientos vinculados al scroll; en móvil la lectura se organiza en una columna.
 - **Competencias:** siete áreas desplegables con elementos HTML nativos `details`/`summary`, herramientas concretas y niveles de dominio explícitos. UX/UI, Figma, web y maquetación, diseño gráfico, Blender, IA aplicada y marketing/analítica tienen contenido propio. Marketing y analítica se presentan con nivel intermedio; JavaScript conserva las nociones básicas indicadas expresamente por Alexis. Se pueden recorrer y abrir con teclado.
 - **Proyectos web:** en escritorio amplio, la información de la columna izquierda avanza verticalmente mientras la laptop permanece fija a la derecha. Cambia la captura dentro de su pantalla y se conserva la última textura disponible mientras carga la siguiente. Los botones numerados y el menú permiten seleccionar el proyecto; las barras de progreso tienen más grosor. Si la escena no está disponible, se muestra la captura correspondiente en la columna visual. En pantallas pequeñas, vistas de poca altura o con movimiento reducido se usa una lista vertical para mantener todo el contenido accesible.
-- **Producto 3D:** la sección SEICENTO combina una secuencia de 90 renders del estuche Silky Pro Palette, controlada por scroll, con tres composiciones de Cristal Rubí animadas mediante GSAP. El estuche usa canvas 2D y una vista sticky; el contenido permanece en HTML y dispone de imágenes estáticas para movimiento reducido o vistas cortas.
+- **Páginas web en proceso:** una sección independiente entre los sitios publicados y SEICENTO reúne UMBRAL, Solea Solar, DUANOR, HELIO y Gómez. El selector cambia proyecto, texto, recurso visual y enlace. La vista interactiva monta un único iframe al pulsar «Explorar aquí»; al cambiar de proyecto, cerrarla o alejarse de la sección se retira. Siempre se puede abrir el sitio en otra pestaña.
+- **Producto 3D:** SEICENTO se presenta como una sola sección sobre fondo marfil, incluido el encabezado. El estuche amplía su encuadre y sincroniza el título superior y los textos laterales con sus 90 renders: introducción con el estuche cerrado, desaparición con difuminado al abrirse y mensajes laterales en la vista de los tonos. Cristal Rubí añade un modelo real en Three.js con acercamientos a la tapa, vidrio y aplicador, seguido de las tres composiciones fotográficas. Los textos permanecen en HTML y se conservan pósteres para movimiento reducido, vistas cortas o fallos de carga.
 - **Contacto:** correo directo, formulario con Web3Forms configurado y un cierre tipográfico sin laptop ni canvas 3D. Una línea luminosa superior acompaña el movimiento de las letras de «HABLEMOS.», que giran y se alinean mediante GSAP al llegar al final del scroll. En pantallas de más de 1100 px de ancho, el footer se fija al fondo y queda al descubierto solo si su contenido completo cabe en la altura disponible. En tamaños menores, con movimiento reducido o si el formulario crece, permanece en el flujo normal para evitar contenido oculto. El modo oscuro es la presentación principal; perfil y trayectoria usan un fondo marfil.
 
 ### Tipografía responsive
@@ -53,7 +54,7 @@ Ambas imágenes son archivos locales WebP: la ilustración completa en `public/i
 
 ## Información profesional
 
-El contenido se actualiza con **Felix-Alexis-Flores-Rojas-Resume 2026.pdf**, proporcionado por Alexis el **27 de octubre de 2026** e integrado en esta versión el **28 de octubre**. Su perfil principal es **Diseñador de Producto Digital UX/UI**. Su nombre completo es **Felix Alexis Flores Rojas**, sin acento, y el nombre correcto de la empresa anterior es **Grupo Invictus**.
+El contenido profesional, conservado sin cambios en v10, se actualizó en v9 con **Felix-Alexis-Flores-Rojas-Resume 2026.pdf**, proporcionado por Alexis el **27 de octubre de 2026** e integrado el **28 de octubre**. Su perfil principal es **Diseñador de Producto Digital UX/UI**. Su nombre completo es **Felix Alexis Flores Rojas**, sin acento, y el nombre correcto de la empresa anterior es **Grupo Invictus**.
 
 | Empresa | Periodo | Puesto |
 | --- | --- | --- |
@@ -89,20 +90,33 @@ Las competencias reúnen lo documentado y las herramientas confirmadas por Alexi
 
 Enlaces profesionales conservados: [LinkedIn](https://www.linkedin.com/in/felix-alexis-flores-rojas-94a885265/), [Behance](https://www.behance.net/alexisflores01001415) y [GitHub](https://github.com/alexis01001415-oss).
 
-## Proyectos web
+## Proyectos web publicados
 
-La selección reúne trabajo en T-Line y proyectos independientes, con capturas reales y enlaces a los sitios:
+La primera galería reúne tres sitios publicados, con capturas y una laptop cuya pantalla cambia con la selección:
 
 | Proyecto | Sitio | Captura |
 | --- | --- | --- |
 | Curiosity Marketplace | [marketplace.curiositycloud.com](https://marketplace.curiositycloud.com/) | `public/images/cases/curiosity.webp` |
 | Macloud Seguridad Privada | [seguridadmacloud.com.mx](https://seguridadmacloud.com.mx/) | `public/images/cases/macloud.webp` |
 | Gatical Seguridad Privada | [gaticalseguridadprivada.framer.website](https://gaticalseguridadprivada.framer.website/) | `public/images/cases/gatical.webp` |
-| Asesoría y Gestoría Gómez · En desarrollo | [Vista previa en Framer](https://nurtured-bear-621750.framer.app/) | `public/images/cases/gomez.webp` |
 
-Las descripciones explican el contenido visible y el reto de diseño. Para Curiosity Marketplace se documenta la contribución descrita en el nuevo CV: experiencia, arquitectura de información y flujos de alta de productos en Odoo. No se atribuyen resultados de Curiosity Cloud al marketplace.
+Las descripciones explican el contenido visible y el reto de diseño. Para Curiosity Marketplace se documenta la contribución descrita en el CV: experiencia, arquitectura de información y flujos de alta de productos en Odoo. No se atribuyen resultados de Curiosity Cloud al marketplace.
 
-**Asesoría y Gestoría Gómez** se presenta como cuarto proyecto, con el estado **En desarrollo**. La vista de Framer contiene servicios de gestoría, cobertura geográfica y un diagnóstico documental interactivo para empresas de seguridad privada. Se conserva su condición de proyecto incompleto y se integra en la navegación, los controles y la pantalla de la laptop.
+## Páginas web en proceso
+
+La sección independiente `#en-proceso`, entre los sitios publicados y producto 3D, contiene los cuatro enlaces proporcionados por Alexis y Gómez, que conserva su estado de desarrollo:
+
+| Proyecto | Enlace | Enfoque |
+| --- | --- | --- |
+| UMBRAL | [umbral-blender-web](https://alexis01001415-oss.github.io/umbral-blender-web/) | Persianas, cortinas y espacios interactivos |
+| Solea Solar | [solea-solar](https://alexis01001415-oss.github.io/solea-solar/) | Calentadores solares y recorrido 3D |
+| DUANOR | [Agencia aduanal](https://alexis01001415-oss.github.io/) | Servicios aduanales y logística |
+| HELIO | [Prototipo de paneles solares](https://alexis01001415-oss.github.io/Prototipo-web-para-paneles-solares/) | Paneles solares y energía |
+| Asesoría y Gestoría Gómez | [Vista previa en Framer](https://nurtured-bear-621750.framer.app/) | Asesoría y gestoría para empresas de seguridad privada |
+
+`src/web-process.ts` y su CSS coordinan el selector, la información y la vista interactiva bajo demanda. Solo se crea un iframe después de la acción del visitante; no se cargan simultáneamente cinco sitios con WebGL. El iframe se elimina al cambiar de proyecto, cerrarlo o salir de su zona. El enlace externo permanece disponible. Las flechas, Home y End recorren las opciones; los botones exponen `aria-pressed`. La selección de Gómez conserva los enlaces antiguos `#gomez`.
+
+La inserción permite únicamente los orígenes indicados en el código y las capacidades necesarias para los sitios propios, sin navegación superior desde el iframe. La página de destino mantiene sus propias políticas de carga; si no admite inserción, puede abrirse en otra pestaña. Los recursos visuales reproducen las capturas o modelos de los proyectos suministrados, según sus pies de imagen; no se presentan todos como capturas del sitio.
 
 ## CV descargable
 
@@ -112,14 +126,17 @@ Para futuras actualizaciones, sustituir el descargable por el PDF proporcionado 
 
 ## Diseño de producto 3D — SEICENTO
 
-La sección `#diseno-3d`, implementada en `src/product-design.ts` y `src/product-design.css`, muestra dos trabajos de Blender. No incluye la página web de SEICENTO.
+La sección `#diseno-3d` integra encabezado, estuche y Cristal Rubí sobre el mismo fondo marfil. Se implementa en `src/product-design.ts`, `src/product-design.css` y el módulo diferido `src/rubi-scene.ts`. No incluye la página web de SEICENTO.
 
-- **Silky Pro Palette:** 90 fotogramas WebP RGBA de 1280 × 720, seleccionados de la secuencia original de 120 renders Eevee. El scroll recorre apertura, vista de los 35 tonos, cierre y entrada de las brochas. La secuencia pesa **1,964,832 bytes**; el póster de respaldo pesa **57,996 bytes**.
-- **Cristal Rubí:** concepto ficticio de aceite labial. Tres composiciones originales renderizadas nuevamente con Cycles a 720 × 1280: arquitectura de estudio, luz diagonal y detalle del aplicador. Los tres WebP visibles suman **78,256 bytes**. Su movimiento de encuadre se vincula al scroll; no se presenta como un producto comercial ni como un giro 3D en tiempo real.
+- **Silky Pro Palette:** 90 fotogramas WebP RGBA de 1280 × 720, seleccionados de la secuencia original de 120 renders Eevee. El scroll recorre apertura, vista de los 35 tonos, cierre y entrada de las brochas. El producto gana tamaño; el título y párrafo superiores se difuminan al abrirse y se muestran textos laterales durante la vista de los tonos. La secuencia pesa **1,964,832 bytes**; el póster de respaldo pesa **57,996 bytes**.
+- **Cristal Rubí:** aceite labial real de SEICENTO, según la aclaración de Alexis del 28 de octubre de 2026. El modelo interactivo procede del `.blend` original v009: vidrio con marca grabada, líquido, roscas, tapa, varilla y punta con fibras. El recorrido guía la cámara por tapa y vidrio y extrae tapa/aplicador juntos. Las anotaciones describen materiales y usos en web, publicidad digital, piezas impresas y animación.
+- **Fotografías de producto:** después del modelo interactivo aparecen las tres composiciones Cycles a 720 × 1280: arquitectura de estudio, luz diagonal y detalle del aplicador. Sus WebP suman **78,256 bytes** y el movimiento de encuadre se vincula al scroll.
 
-La secuencia se carga cerca de su entrada en pantalla, con un máximo de tres solicitudes simultáneas. Mantiene una caché acotada de imágenes decodificadas (16 en móvil y 28 en escritorio), limita el DPR a 1.5 y dibuja cuando cambia el fotograma. Al desmontarse cancela cargas y libera recursos. El póster y los textos permanecen disponibles si falla la secuencia. Movimiento reducido usa imágenes estáticas; las vistas cortas evitan el recorrido sticky.
+El GLB de Cristal Rubí (`public/models/seicento/cristal-rubi.glb`) pesa **1,867,112 bytes**, contiene 14 mallas y 74,860 triángulos y no requiere Draco. La exportación adapta materiales procedurales de Cycles a PBR glTF para tiempo real y reduce las geometrías más densas; conserva una muestra de 1,400 fibras originales. Las fotografías posteriores mantienen los renders Cycles originales. El grupo `RubiCap` incluye tapa, varilla y punta; `RubiBody` contiene envase y líquido. Metadatos y límites están en el JSON adjunto.
 
-Las fuentes, escenas y conversiones están documentadas en `assets-source/seicento/SOURCES.md`. Los `.blend` originales permanecen en el proyecto local de SEICENTO y no se modificaron. Los recursos web están en `public/images/seicento/`.
+La secuencia del estuche se carga cerca de su entrada, con un máximo de tres solicitudes simultáneas y caché acotada de imágenes decodificadas. El modelo de Cristal Rubí se carga al acercarse a su sección; su renderer dibuja cuando cambia la pose visible y se detiene fuera de pantalla o con la pestaña oculta. Al desmontarse se cancelan cargas y liberan recursos. Pósteres y textos conservan el contenido ante fallos; movimiento reducido y vistas cortas evitan los recorridos sticky.
+
+Las fuentes, escenas, conversiones y decisiones de exportación están documentadas en `assets-source/seicento/SOURCES.md`. `export_product_web.py` genera el GLB desde las colecciones originales en un proceso Blender independiente. Los `.blend` originales permanecen intactos en el proyecto local de SEICENTO. Los recursos web están en `public/images/seicento/` y `public/models/seicento/`.
 
 ## Contacto y Web3Forms
 
@@ -137,7 +154,7 @@ El GLB pesa aproximadamente 1.49 MB y contiene 47 meshes y 36,894 triángulos, c
 
 La iluminación utiliza tonos neutros: se retiró la luz roja tanto de Three.js como de la fuente Blender y su póster. Los materiales rojos del escritorio siguen siendo parte de la paleta del objeto.
 
-Un único renderer de Three.js se desplaza entre el recorrido inicial y la galería. La cámara añade un acercamiento frontal al final del recorrido inicial. En la galería, la pose de la laptop permanece fija; las capturas se cargan como texturas de pantalla y la última disponible se mantiene visible durante los cambios. Los capítulos iniciales utilizan composiciones originales en `CanvasTexture`; no descargan videos. El footer utiliza tipografía y una línea luminosa CSS; no monta una escena 3D.
+El renderer principal de Three.js se desplaza entre el recorrido inicial y la galería de sitios publicados. Cristal Rubí dispone de un renderer separado, creado al aproximarse a su sección y activo únicamente cuando corresponde. La cámara añade un acercamiento frontal al final del recorrido inicial. En la galería, la pose de la laptop permanece fija; las capturas se cargan como texturas de pantalla y la última disponible se mantiene visible durante los cambios. Los capítulos iniciales utilizan composiciones originales en `CanvasTexture`; no descargan videos. El footer utiliza tipografía y una línea luminosa CSS; no monta una escena 3D.
 
 Los reflejos proceden de un entorno PMREM precalculado de Three.js: `public/models/studio-environment.pmrem`, 265,087 bytes comprimidos con gzip. El atlas mide 384 × 512 píxeles, RGBA Float16 little endian. La web lo carga mediante `DecompressionStream` y `DataTexture`, evitando generar PMREM al entrar.
 
@@ -178,7 +195,7 @@ Referencias iniciales: [Vizcom](https://vizcom.com/), [SKF](https://www.skf.com/
 - Material Symbols Rounded: Google / Apache 2.0; subconjunto local.
 - Fotografía de perfil: imagen real proporcionada por Alexis para su portafolio.
 - Escena Blender, texturas del estudio, shader del retrato y composiciones de pantalla: creados para este portafolio.
-- Recursos SEICENTO: derivados de los trabajos originales de Blender de Alexis; Cristal Rubí es un concepto ficticio.
+- Recursos SEICENTO: derivados de los trabajos originales de Blender proporcionados por Alexis. Cristal Rubí se identifica como producto real conforme a su aclaración actual. Las marcas y los recursos incorporados a esos proyectos conservan los derechos de sus titulares; no se asigna una licencia nueva al exportarlos para web.
 - Las capturas de los proyectos reproducen los sitios enlazados. Sus marcas, imágenes, diseños y contenido conservan los derechos de sus titulares; no se les asigna una licencia nueva.
 
 ## Publicación

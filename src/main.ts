@@ -6,6 +6,7 @@ import { setupPortrait } from './portrait';
 import { setupContact } from './contact';
 import { setupFooterMotion } from './footer';
 import { setupProductDesign } from './product-design';
+import { setupWebProcess } from './web-process';
 import type { Experience } from './scene';
 import './gallery.css';
 import './timeline.css';
@@ -38,6 +39,7 @@ const abort = new AbortController();
 $('#year').textContent = String(new Date().getFullYear());
 setupPortrait($('.about-portrait'), reduced);
 setupContact($<HTMLFormElement>('#contact-form'));
+setupWebProcess();
 
 const intro = gsap.timeline();
 if (!reduced.matches) intro.from('.loader-mark span', { yPercent: 125, rotate: 10, duration: .85, stagger: .13, ease: 'power4.out' }).from('.loader-mark b', { scale: 0, rotate: -30, duration: .6, ease: 'back.out(2)' }, '-=.4');

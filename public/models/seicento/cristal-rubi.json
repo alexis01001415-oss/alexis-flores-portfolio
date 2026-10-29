@@ -1,0 +1,125 @@
+{
+  "sourceBlend": "Lip_Oil_Cristal/blend/Seicento_Cristal_Rubi_Premium_Alpha_v009.blend",
+  "product": "Cristal Rubí — SEICENTO",
+  "root": "RubiProduct",
+  "body": "RubiBody",
+  "cap": "RubiCap",
+  "axis": "Y up, front +Z in glTF",
+  "originalHeightMeters": 0.093,
+  "normalization": "Closed product centered around origin, height approximately 1; all cap/applicator nodes under RubiCap. Translate RubiCap along +Y to open.",
+  "blenderBounds": {
+    "min": [
+      -0.17204302549362183,
+      -0.12903226912021637,
+      -0.5
+    ],
+    "max": [
+      0.17204302549362183,
+      0.12903226912021637,
+      0.5
+    ]
+  },
+  "gltfBounds": {
+    "min": [
+      -0.17204302549362183,
+      -0.5,
+      -0.12903226912021637
+    ],
+    "max": [
+      0.17204302549362183,
+      0.5,
+      0.12903226912021637
+    ]
+  },
+  "objects": [
+    {
+      "node": "RubiBody_00",
+      "source": "FRASCO | vidrio hueco · paredes2.4mm base4.5mm",
+      "vertices": 9176,
+      "triangles": 18348
+    },
+    {
+      "node": "RubiBody_01",
+      "source": "CONTENIDO | aceite rubí · menisco",
+      "vertices": 1792,
+      "triangles": 3580
+    },
+    {
+      "node": "RubiBody_03",
+      "source": "CUELLO | rosca de vidrio",
+      "vertices": 1152,
+      "triangles": 2304
+    },
+    {
+      "node": "RubiBody_04",
+      "source": "CUELLO | rosca de vidrio.001",
+      "vertices": 1152,
+      "triangles": 2304
+    },
+    {
+      "node": "RubiBody_05",
+      "source": "CUELLO | rosca de vidrio.002",
+      "vertices": 1152,
+      "triangles": 2304
+    },
+    {
+      "node": "RubiBody_06",
+      "source": "BOCA | reductor interior",
+      "vertices": 768,
+      "triangles": 1536
+    },
+    {
+      "node": "RubiCap_00",
+      "source": "TAPA | carcasa hueca de platino · bisel mecanizado",
+      "vertices": 1512,
+      "triangles": 3020
+    },
+    {
+      "node": "RubiCap_01",
+      "source": "TAPA | junta perimetral de unión · grafito",
+      "vertices": 432,
+      "triangles": 860
+    },
+    {
+      "node": "RubiCap_02",
+      "source": "TAPA | casquillo de varilla · metal satinado",
+      "vertices": 576,
+      "triangles": 1148
+    },
+    {
+      "node": "RubiCap_03",
+      "source": "TAPA | asiento interior · polímero grafito",
+      "vertices": 384,
+      "triangles": 764
+    },
+    {
+      "node": "RubiCap_04",
+      "source": "VARILLA | nylon opalino · hombro moldeado",
+      "vertices": 864,
+      "triangles": 1724
+    },
+    {
+      "node": "RubiCap_05",
+      "source": "PUNTA | doe-foot acolchado · extremo redondeado",
+      "vertices": 7374,
+      "triangles": 14744
+    },
+    {
+      "node": "RubiCap_06",
+      "source": "PUNTA | carga húmeda de gel",
+      "vertices": 6914,
+      "triangles": 13824
+    },
+    {
+      "node": "RubiFibres",
+      "source": "PUNTA | flock suave · microgrupos V006",
+      "vertices": 8400,
+      "triangles": 8400,
+      "sourceCurves": 42000,
+      "samplingStride": 30
+    }
+  ],
+  "triangles": 74860,
+  "bytes": 1867112,
+  "materialsNote": "Original geometry. Procedural Cycles materials approximated by glTF PBR transmission/metallic-roughness, fibre subset converted to geometry. No source blend changes."
+}
