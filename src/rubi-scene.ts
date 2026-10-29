@@ -28,8 +28,8 @@ const poses: Pose[] = [
   { progress: .56, turn: -.40, distance: 3.75, targetY: 1.15, elevation: .12, opening: 0 },
   { progress: .64, turn: -.20, distance: 4.30, targetY: 1.22, elevation: .18, opening: 0 },
   { progress: .72, turn: .10, distance: 7.20, targetY: 1.80, elevation: .25, opening: 0 },
-  { progress: .82, turn: .38, distance: 9.60, targetY: 2.58, elevation: .32, opening: 2.28 },
-  { progress: 1, turn: -.25, distance: 9.75, targetY: 2.59, elevation: .35, opening: 2.28 },
+  { progress: .82, turn: .38, distance: 10.80, targetY: 2.68, elevation: .32, opening: 2.28 },
+  { progress: 1, turn: -.25, distance: 10.95, targetY: 2.69, elevation: .35, opening: 2.28 },
 ];
 
 const smooth = (value: number) => value * value * (3 - 2 * value);
