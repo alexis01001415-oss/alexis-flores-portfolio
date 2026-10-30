@@ -1,0 +1,41 @@
+/* Intentionally discreet, as requested. Selection reveals public statistics;
+   this is not an authentication boundary. Never use opacity/visibility here. */
+.visit-indicator {
+  position: absolute;
+  z-index: 4;
+  top: 24px;
+  right: var(--space);
+  max-width: min(420px, calc(100% - 2 * var(--space)));
+  color: transparent;
+  pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: .5px;
+  line-height: 1.4;
+}
+.visit-indicator ::selection, .visit-indicator::selection { color: #131211; background: #f2eae3; }
+.visit-metrics { display: inline; font-variant-numeric: tabular-nums; }
+.visit-metrics span { white-space: nowrap; }
+.visit-details { display: block; font-size: 10px; line-height: 1.4; letter-spacing: .2px; }
+.visit-indicator.is-revealed {
+  color: var(--paper);
+  padding: 16px;
+  background: #131211;
+  border: 1px solid #d0c9c366;
+  text-align: left;
+  box-shadow: 0 12px 40px #0005;
+}
+.visit-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-top: 12px; }
+.visit-controls a, .visit-controls button { min-height: 44px; font-size: 12px; display: inline-flex; align-items: center; padding: 4px 0; border-bottom: 1px solid #d0c9c366; }
+.visit-controls a:hover, .visit-controls button:hover { border-color: var(--red); }
+.visit-controls button { margin-left: auto; }
+@media (max-width: 800px) {
+  .visit-indicator { top: 80px; font-size: 10px; letter-spacing: 0; }
+  .visit-details { font-size: 9px; }
+  .visit-indicator.is-revealed { font-size: 12px; }
+  .visit-indicator.is-revealed .visit-details { font-size: 11px; }
+}
+@media print { .visit-indicator { display: none; } }

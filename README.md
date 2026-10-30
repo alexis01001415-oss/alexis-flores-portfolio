@@ -201,3 +201,7 @@ Referencias iniciales: [Vizcom](https://vizcom.com/), [SKF](https://www.skf.com/
 ## Publicación
 
 En GitHub → Settings → Pages, seleccionar **GitHub Actions**. `.github/workflows/pages.yml` publica `dist/` al recibir cambios en `main`. Las rutas relativas permiten alojar la web dentro del subdirectorio del repositorio.
+
+## Estadísticas de visitas
+
+Integración opcional con GoatCounter: indicador discreto en la esquina superior derecha del hero, revelado con Ctrl+A, con visitas de 7 días, 30 días y total. `?estadisticas=ver` abre los controles, también en móvil; `?visitas=excluir` excluye este navegador antes de cargar el seguimiento. La cuenta de GoatCounter todavía debe conectarse mediante `VITE_GOATCOUNTER_SITE`; sin ella no se envían datos ni se presentan cifras. Instrucciones de activación, filtro por IP y límites del contador en [docs/analytics.md](docs/analytics.md). Verificación local: `node scripts/test-analytics.mjs`.

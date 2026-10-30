@@ -228,3 +228,11 @@ En otra terminal, ejecutar las auditorías de forma secuencial:
 node scripts/audit.mjs http://127.0.0.1:4173/
 node scripts/audit.mjs http://127.0.0.1:4173/ --desktop
 ```
+
+## Estadísticas opcionales — 29 de octubre de 2026
+
+- `node scripts/test-analytics.mjs`: exclusión idempotente, persistencia, almacenamiento denegado, exclusión general previa del proveedor, ámbito exacto de producción, DNT, pestaña inicialmente oculta, consulta de contadores y fallos sin cifras falsas. Dobles locales; ninguna visita enviada durante las pruebas.
+- Se comprueba que la carga del script ocurre después de la exclusión, que la ancla y los parámetros no alteran la ruta y que `q` se elimina del payload de GoatCounter antes de enviar.
+- Build con configuración vacía y con slug temporal válido; CSP añade solo los orígenes exactos. Una URL como valor de la variable es rechazada. Build final sin cuenta configurada.
+- Navegador: Ctrl+A revela el indicador en escritorio; en móvil de 390 × 844, los controles de exclusión y ocultación son utilizables y la preferencia persiste al recargar.
+- Pendiente externo: conectar una cuenta real, permitir contadores públicos y verificar la recepción en su panel. No se ha validado un conteo real ni un filtro IP del servidor sin esa cuenta. El contador público puede tener hasta cuatro horas de retraso.

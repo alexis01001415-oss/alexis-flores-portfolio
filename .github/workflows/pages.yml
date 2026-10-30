@@ -25,6 +25,7 @@ jobs:
       - run: npm run build
         env:
           SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          VITE_GOATCOUNTER_SITE: ${{ vars.VITE_GOATCOUNTER_SITE }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
